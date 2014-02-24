@@ -123,14 +123,16 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	 * @see com.cfranc.irc.client.IfSenderModel#setMsgToSend(java.lang.String)
 	 */
 	@Override
-	public void setMsgToSend(String msgToSend) {
+	public void setMsgToSend(String msgToSend) throws IOException {
 		this.msgToSend = msgToSend;
+		sendMsg();
 	}
 
 	private boolean sendMsg() throws IOException{
 		boolean res=false;
 		if(msgToSend!=null){
 			streamOut.writeUTF("#"+login+"#"+msgToSend);
+			receiveMessage(login, msgToSend);
 			msgToSend=null;
 		    streamOut.flush();
 		    res=true;
