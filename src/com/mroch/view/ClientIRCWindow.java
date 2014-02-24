@@ -1,10 +1,10 @@
 package com.mroch.view;
 import java.awt.BorderLayout;
-
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.Document;
@@ -17,12 +17,16 @@ import javax.swing.AbstractListModel;
 import javax.swing.JTextArea;
 
 import java.awt.Color;
+
 import javax.swing.JTextField;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JButton;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -60,6 +64,11 @@ public class ClientIRCWindow extends JFrame {
 		panel.add(textArea);
 		textArea.setEditable(false);
 		textArea.setBackground(Color.WHITE);
+		
+		JScrollPane scroll = new JScrollPane (textArea, 
+				   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+				panel.add(scroll);
 		
 		textField = new JTextField(userInput,null,0);
 
