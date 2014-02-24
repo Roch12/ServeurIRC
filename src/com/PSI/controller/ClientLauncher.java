@@ -26,6 +26,8 @@ public class ClientLauncher {
 				ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, "User", "User");
 				ClientIRCWindow frame = new ClientIRCWindow(documentModel, userInput, listModel);
 				frame.setVisible(true);
+				client.open();
+				client.start();
 			} catch (NumberFormatException | IOException e) {
 				e.printStackTrace();
 			}	
