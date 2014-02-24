@@ -88,6 +88,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 			if(BroadcastThread.addClient(newUser, client)){
 				client.start();			
 				clientListModel.addElement(newUser.getLogin());
+				BroadcastThread.loadUserByMessage();
 				dos.writeUTF(ADD+login);
 			}
 		}

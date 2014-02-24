@@ -19,17 +19,29 @@ public class BroadcastThread extends Thread {
 		}
 		else{
 			clientTreadsMap.put(user, serverToClientThread);
+			sendMessage(user, "", false);
 		}
 		return res;
 	}
 
-	public static void sendMessage(User sender, String msg){
+	public static void sendMessage(User sender, String msg, boolean message){
 		Collection<ServerToClientThread> clientTreads=clientTreadsMap.values();
 		Iterator<ServerToClientThread> receiverClientThreadIterator=clientTreads.iterator();
 		while (receiverClientThreadIterator.hasNext()) {
 			ServerToClientThread clientThread = (ServerToClientThread) receiverClientThreadIterator.next();
-			clientThread.post("#"+sender.getLogin()+"#"+msg);			
+			if(message){
+				clientThread.post("#"+sender.getLogin()+"#"+msg);		
+			}
+			else clientThread.post("#+#"+sender.getLogin());		
 			System.out.println("sendMessage : "+"#"+sender.getLogin()+"#"+msg);
+		}
+	}
+	
+	public static void loadUserByMessage(){
+		Collection<ServerToClientThread> clientTreads=clientTreadsMap.values();
+		Iterator<ServerToClientThread> receiverClientThreadIterator=clientTreads.iterator();
+		for (User user : clientTreadsMap.keySet()) {
+			sendMessage(user, "", false);
 		}
 	}
 	

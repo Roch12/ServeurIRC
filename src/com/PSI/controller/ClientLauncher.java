@@ -26,7 +26,7 @@ public class ClientLauncher {
 			Socket socket = null;
 			try {
 				socket = new Socket(args[0], Integer.parseInt(args[1]));
-				final ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, "User", "User");
+				final ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, "Maxime", "User");
 				ClientIRCWindow frame = new ClientIRCWindow(documentModel, userInput, listModel);
 				frame.getTextField().addKeyListener(new KeyAdapter() {
 					@Override

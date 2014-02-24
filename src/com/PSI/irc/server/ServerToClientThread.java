@@ -72,7 +72,7 @@ public class ServerToClientThread extends Thread{
 							if(login.equals(user)){
 								System.err.println("ServerToClientThread::run(), login!=user"+login);
 							}
-							BroadcastThread.sendMessage(user,msg);
+								BroadcastThread.sendMessage(user,msg,true);
 						}
 					}
 					else{
