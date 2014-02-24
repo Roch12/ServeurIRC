@@ -142,6 +142,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	public void quitServer() throws IOException{
 		streamOut.writeUTF(IfClientServerProtocol.DEL+login);
+		System.out.println("QuitServer : " + IfClientServerProtocol.DEL+login);
 		streamOut.flush();
 		done=true;
 	}

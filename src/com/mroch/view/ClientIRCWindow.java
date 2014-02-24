@@ -22,17 +22,24 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.JButton;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class ClientIRCWindow extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField;
 	private JList<String> list;
+	private JPanel panel_1;
 
 	/**
 	 * Create the frame.
 	 */
 	public ClientIRCWindow(Document documentModel, Document userInput, ListModel<String> listModel) {
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 636, 392);
 		contentPane = new JPanel();
@@ -42,12 +49,6 @@ public class ClientIRCWindow extends JFrame {
 		
 		JSplitPane splitPane = new JSplitPane();
 		contentPane.add(splitPane, BorderLayout.CENTER);
-		
-		
-		list = new JList<String>(listModel);
-
-		list.setPreferredSize(new Dimension(100, 0));
-		splitPane.setLeftComponent(list);
 		
 		JPanel panel = new JPanel();
 		splitPane.setRightComponent(panel);
@@ -64,6 +65,18 @@ public class ClientIRCWindow extends JFrame {
 
 		panel.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
+		
+		panel_1 = new JPanel();
+		panel_1.setSize(new Dimension(200, 0));
+		splitPane.setLeftComponent(panel_1);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		
+		list = new JList<String>(listModel);
+		panel_1.add(list);
+		
+				list.setPreferredSize(new Dimension(100, 0));
+				
 	}
 
 	public JTextField getTextField() {

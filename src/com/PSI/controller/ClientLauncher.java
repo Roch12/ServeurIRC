@@ -1,9 +1,14 @@
 package com.PSI.controller;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.rmi.server.Operation;
 
 import javax.swing.DefaultListModel;
 import javax.swing.text.BadLocationException;
@@ -28,6 +33,18 @@ public class ClientLauncher {
 				socket = new Socket(args[0], Integer.parseInt(args[1]));
 				final ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, "Maxime", "User");
 				ClientIRCWindow frame = new ClientIRCWindow(documentModel, userInput, listModel);
+				frame.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent arg0) {
+						try {
+							client.quitServer();
+							client.close();
+						} catch (IOException e) {
+						
+							e.printStackTrace();
+						}
+					}
+				});
 				frame.getTextField().addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent arg0) {

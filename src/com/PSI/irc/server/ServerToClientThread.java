@@ -69,10 +69,13 @@ public class ServerToClientThread extends Thread{
 						String msg=userMsg[2];
 						done = msg.equals(".bye");
 						if(!done){
+							
 							if(login.equals(user)){
 								System.err.println("ServerToClientThread::run(), login!=user"+login);
 							}
-								BroadcastThread.sendMessage(user,msg,true);
+							if(line.equals(IfClientServerProtocol.DEL + user.getLogin())) 
+								BroadcastThread.sendMessage(user,"",IfClientServerProtocol.DEL);
+							else BroadcastThread.sendMessage(user,msg,IfClientServerProtocol.Message);
 						}
 					}
 					else{
