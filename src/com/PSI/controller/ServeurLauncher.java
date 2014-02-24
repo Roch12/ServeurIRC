@@ -4,6 +4,7 @@ import javax.swing.ListModel;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import com.mroch.view.*;
 
 import com.PSI.irc.server.ClientConnectThread;
 
@@ -14,6 +15,8 @@ public class ServeurLauncher {
 		StyledDocument styledDocument = new DefaultStyledDocument();
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		ClientConnectThread connect = new ClientConnectThread(4567,styledDocument,listModel);
+		ServerIRCWindow frame = new ServerIRCWindow(styledDocument, listModel);
+		frame.setVisible(true);
 		connect.run();
 	}
 
