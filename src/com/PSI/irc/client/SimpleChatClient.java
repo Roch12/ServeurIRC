@@ -52,7 +52,8 @@ public class SimpleChatClient {
 			System.out.println("Usage: java ChatClient host port");
 		}
 		else{
-			client = new SimpleChatClient(args[0], Integer.parseInt(args[1]));
+			//client = new SimpleChatClient(args[0], Integer.parseInt(args[1]));
+			client = new SimpleChatClient("10.16.161.20", Integer.parseInt(args[1]));
 		}
 	}
 }

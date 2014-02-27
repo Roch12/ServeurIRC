@@ -24,14 +24,15 @@ public class ClientLauncher {
 		final DefaultStyledDocument documentModel = new DefaultStyledDocument();
 		final DefaultStyledDocument userInput = new DefaultStyledDocument();
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
-		if (args.length != 2){
+		if (args.length != 3){
 			System.out.println("Usage: java ChatClient host port");
 		}
 		else{
 			Socket socket = null;
 			try {
-				socket = new Socket(args[0], Integer.parseInt(args[1]));
-				final ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, "Maxime", "User");
+				socket = new Socket(args[1], Integer.parseInt(args[2]));
+				//socket = new Socket("10.16.161.20", 4567);
+				final ClientToServerThread client = new ClientToServerThread(documentModel, listModel, socket, args[0], "User");
 				ClientIRCWindow frame = new ClientIRCWindow(documentModel, userInput, listModel);
 				frame.addWindowListener(new WindowAdapter() {
 					@Override
