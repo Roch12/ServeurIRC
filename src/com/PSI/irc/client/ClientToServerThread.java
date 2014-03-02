@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -17,12 +18,14 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import com.PSI.controller.ClientLauncher;
 import com.PSI.irc.IfClientServerProtocol;
 
 public class ClientToServerThread extends Thread implements IfSenderModel{
 	
     public static final String BOLD_ITALIC = "BoldItalic";
     public static final String GRAY_PLAIN = "Gray";
+    public static Boolean launcher = false;
         
 	public static DefaultStyledDocument defaultDocumentModel() {
 		DefaultStyledDocument res=new DefaultStyledDocument();
@@ -96,6 +99,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		String line = streamIn.readUTF();
 		System.out.println(line);
 		System.out.println(line);
+			
 		if(line.startsWith(IfClientServerProtocol.ADD)){
 			String newUser=line.substring(IfClientServerProtocol.ADD.length());
 			if(!clientListModel.contains(newUser)){
@@ -153,12 +157,25 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		try {
 			open();
 			done = !authentification();
+			System.out.println(done);
+			if(!done && !launcher)
+			{
+				ClientLauncher.launchClient(this);
+				launcher = true;
+			}
+			else
+			{
+				ClientLauncher.error = true;
+				ClientLauncher.main(null);
+			}
+			
 			while (!done) {
 				try {
 					
 					if(streamIn.available()>0){
 						readMsg();
 					}
+
 
 					if(!sendMsg()){
 						Thread.sleep(100);
@@ -170,6 +187,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 				}
 			}
 			close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

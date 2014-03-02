@@ -55,6 +55,14 @@ public class BroadcastThread extends Thread {
 		if(clientTreadsMap.containsKey(user)){
 			res= false;
 		}
+		else{
+			for (User user1 : clientTreadsMap.keySet()) {
+				if(user1.getLogin().equals(user.getLogin()))
+				{
+					res = false;
+				}
+			}
+		}
 		return res;
 	}
 }

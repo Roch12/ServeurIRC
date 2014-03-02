@@ -8,18 +8,22 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
+
 import com.PSI.irc.IfClientServerProtocol;
 
 public class ServerToClientThread extends Thread{
 	private User user;
-	private Socket socket = null;
+	public Socket socket = null;
+	private DefaultListModel<String> clientListModel = null;
 	private DataInputStream streamIn = null;
 	private DataOutputStream streamOut = null;
 	
-	public ServerToClientThread(User user, Socket socket) {
+	public ServerToClientThread(User user, Socket socket,DefaultListModel<String> clientListModel) {
 		super();
 		this.user=user;
 		this.socket = socket;
+		this.clientListModel = clientListModel;
 	}
 	
 	List<String> msgToPost=new ArrayList<String>();
@@ -73,8 +77,15 @@ public class ServerToClientThread extends Thread{
 							if(login.equals(user)){
 								System.err.println("ServerToClientThread::run(), login!=user"+login);
 							}
-							if(line.equals(IfClientServerProtocol.DEL + user.getLogin())) 
+							if(line.equals(IfClientServerProtocol.DEL + user.getLogin())) {
 								BroadcastThread.sendMessage(user,"",IfClientServerProtocol.DEL);
+								BroadcastThread.removeClient(user);
+								clientListModel.clear();
+								for (User user : BroadcastThread.clientTreadsMap.keySet()) {
+									clientListModel.addElement(user.getLogin());
+								}
+								System.out.println("Delete " + user.getLogin());
+							}
 							else BroadcastThread.sendMessage(user,msg,IfClientServerProtocol.Message);
 						}
 					}

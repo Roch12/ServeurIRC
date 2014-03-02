@@ -81,7 +81,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		boolean isUserOK=authentication(newUser);
 		if(isUserOK){
 			
-			ServerToClientThread client=new ServerToClientThread(newUser, socket);
+			ServerToClientThread client=new ServerToClientThread(newUser, socket, clientListModel);
 			dos.writeUTF(OK);
 
 			// Add user
@@ -90,6 +90,13 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 				clientListModel.addElement(newUser.getLogin());
 				BroadcastThread.loadUserByMessage();
 				dos.writeUTF(ADD+login);
+			}
+			else
+			{
+				System.out.println("socket.close()");
+				dos.writeUTF(KO);
+				dos.close();
+				socket.close();
 			}
 		}
 		else{
