@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -86,9 +87,12 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	public void receiveMessage(String user, String line, Style styleBI,
 			Style styleGP) {
-        try {        	
+        try {        
+        	if(ClientLauncher.tabSelected != -1){
+        	documentModel = ClientLauncher.listDocuments.get("Salon Principal");
 			documentModel.insertString(documentModel.getLength(), user+" : ", styleBI);
 			documentModel.insertString(documentModel.getLength(), line+"\n", styleGP);
+        	}
 		} catch (BadLocationException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -99,8 +103,32 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		String line = streamIn.readUTF();
 		System.out.println(line);
 		System.out.println(line);
+		
+		if(line.startsWith(IfClientServerProtocol.Whispers))
+		{
+
+			String newLine =line.substring(IfClientServerProtocol.Whispers.length());
+			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
+			StyledDocument document = null;
+			if(ClientLauncher.listDocuments.get(userMsg[0]) != null)
+				document = ClientLauncher.listDocuments.get(userMsg[0]);
+			else{
+				document = new DefaultStyledDocument();
+				ClientLauncher.listDocuments.put(userMsg[0],document);
+				ClientLauncher.frame.AddPrivateUserTab(userMsg[0], ClientLauncher.listDocuments.get(userMsg[0]));
+			}
 			
-		if(line.startsWith(IfClientServerProtocol.ADD)){
+			Style styleBI = ((StyledDocument)document).getStyle(BOLD_ITALIC);
+	        Style styleGP = ((StyledDocument)document).getStyle(GRAY_PLAIN);
+			try {
+				System.out.println(userMsg.length);
+				document.insertString(document.getLength(), userMsg[0]+" : ", styleBI);
+				document.insertString(document.getLength(), userMsg[1]+"\n", styleGP);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}	
+		}
+		else if(line.startsWith(IfClientServerProtocol.ADD)){
 			String newUser=line.substring(IfClientServerProtocol.ADD.length());
 			if(!clientListModel.contains(newUser)){
 				clientListModel.addElement(newUser);
@@ -110,7 +138,19 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		else if(line.startsWith(IfClientServerProtocol.DEL)){
 			String delUser=line.substring(IfClientServerProtocol.DEL.length());
 			if(clientListModel.contains(delUser)){
+				ClientLauncher.frame.getList().setSelectedValue(null, false);
 				clientListModel.removeElement(delUser);
+				for (int i = 0; i < ClientLauncher.frame.getTabbedPane().getTabCount(); i++) {
+					System.out.println("Title : " + ClientLauncher.frame.getTabbedPane().getTitleAt(i) + " - " + delUser);
+					
+					if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).startsWith(delUser)){
+						System.out.println("DelUser on TabbedPane");
+						ClientLauncher.frame.getTabbedPane().setSelectedIndex(0);
+						ClientLauncher.frame.getTabbedPane().remove(i);
+						ClientLauncher.frame.getTabbedPane().repaint();
+					}
+						
+				}
 				receiveMessage(delUser, " quitte le salon !");
 			}
 		}
@@ -135,9 +175,21 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	private boolean sendMsg() throws IOException{
 		boolean res=false;
 		if(msgToSend!=null){
+			if(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected).startsWith("Salon"))
 			streamOut.writeUTF("#"+login+"#"+msgToSend);
+			else{
+			streamOut.writeUTF(IfClientServerProtocol.Whispers+login+"#"+ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected)+"#"+msgToSend);
+			StyledDocument doc = ClientLauncher.listDocuments.get(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected));
+			Style styleBI = ((StyledDocument)doc).getStyle(BOLD_ITALIC);
+	        Style styleGP = ((StyledDocument)doc).getStyle(GRAY_PLAIN);
+			try {
+				doc.insertString(doc.getLength(), login+" : ", styleBI);
+				doc.insertString(doc.getLength(), msgToSend+"\n", styleGP);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}	
 			//receiveMessage(login, msgToSend);
-			msgToSend=null;
+			}msgToSend=null;
 		    streamOut.flush();
 		    res=true;
 		}

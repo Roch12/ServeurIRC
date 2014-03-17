@@ -86,6 +86,9 @@ public class ServerToClientThread extends Thread{
 								}
 								System.out.println("Delete " + user.getLogin());
 							}
+							else if(line.startsWith(IfClientServerProtocol.Whispers)){
+								BroadcastThread.sendPrivateMessage(user, userMsg[3], userMsg[4]);
+							}
 							else BroadcastThread.sendMessage(user,msg,IfClientServerProtocol.Message);
 						}
 					}

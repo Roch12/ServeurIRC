@@ -36,6 +36,18 @@ public class BroadcastThread extends Thread {
 			else clientThread.post("#"+sender.getLogin()+"#"+msg);
 			System.out.println("sendMessage : "+"#"+sender.getLogin()+"#"+msg);
 		}
+		
+	}
+	
+	public static void sendPrivateMessage(User sender, String receveir, String msg){
+		for (User user : clientTreadsMap.keySet()) {
+			if(user.getLogin().equals(receveir))
+			{
+				clientTreadsMap.get(user).post("#W#"+sender.getLogin()+"#"+msg);
+				System.out.println("#W#"+sender.getLogin()+"#"+msg);
+				break;
+			}
+		}
 	}
 	
 	public static void loadUserByMessage(){
