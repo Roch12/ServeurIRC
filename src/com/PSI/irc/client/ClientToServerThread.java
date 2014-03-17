@@ -106,7 +106,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		
 		if(line.startsWith(IfClientServerProtocol.Whispers))
 		{
-
+			
 			String newLine =line.substring(IfClientServerProtocol.Whispers.length());
 			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
 			StyledDocument document = null;
@@ -116,6 +116,11 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 				document = new DefaultStyledDocument();
 				ClientLauncher.listDocuments.put(userMsg[0],document);
 				ClientLauncher.frame.AddPrivateUserTab(userMsg[0], ClientLauncher.listDocuments.get(userMsg[0]));
+			}
+			
+			for (int i = 0; i < ClientLauncher.frame.getTabbedPane().countComponents(); i++) {
+				if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).equals(userMsg[0]) && ClientLauncher.tabSelected != i)
+					ClientLauncher.frame.getTabbedPane().setBackgroundAt(i, new Color(255,160,0));
 			}
 			
 			Style styleBI = ((StyledDocument)document).getStyle(BOLD_ITALIC);

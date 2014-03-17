@@ -1,6 +1,7 @@
 package com.mroch.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
@@ -18,9 +19,13 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.TabExpander;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -33,12 +38,14 @@ public class ClientIRCWindow extends JFrame {
 	private JPanel panel_1;
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
+	private HashMap<Integer,Component> tabs;
 
 	/**
 	 * Create the frame.
 	 */
 	public ClientIRCWindow(Document documentModel, Document userInput, ListModel<String> listModel) {
 		
+		tabs = new HashMap<Integer,Component>();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 636, 392);
 		contentPane = new JPanel();
@@ -100,6 +107,10 @@ public class ClientIRCWindow extends JFrame {
 		return list;
 	}
 	
+	public HashMap<Integer,Component> getTabsList(){
+		return tabs;
+	}
+	
 	public void AddPrivateUserTab(String username,StyledDocument styledDocument)
 	{
 		JTextArea textArea = new JTextArea(styledDocument);
@@ -109,7 +120,9 @@ public class ClientIRCWindow extends JFrame {
 		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-		tabbedPane.add(username,scroll);
+		Component c = tabbedPane.add(username,scroll);
+		
+		tabs.put(tabbedPane.getTabCount(),c);
 		panel.add(tabbedPane);
 		textArea.setEditable(false);
 		textArea.setBackground(Color.WHITE);

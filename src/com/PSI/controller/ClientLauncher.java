@@ -108,6 +108,8 @@ public class ClientLauncher {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				tabSelected = frame.getTabbedPane().getSelectedIndex();
+				//if(tabSelected > 0) frame.getTabsList().get(frame.getTabbedPane().getTitleAt(tabSelected)).setBackground(null);
+				frame.getTabbedPane().setBackgroundAt(tabSelected, null);
 				System.out.println("change tab : " + tabSelected);
 				
 			}
