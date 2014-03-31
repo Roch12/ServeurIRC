@@ -17,7 +17,7 @@ public class ServeurLauncher {
 		ClientConnectThread connect = new ClientConnectThread(4567,styledDocument,listModel);
 		ServerIRCWindow frame = new ServerIRCWindow(styledDocument, listModel);
 		frame.setVisible(true);
-		connect.run();
+		connect.start();
 	}
 
 }

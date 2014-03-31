@@ -24,7 +24,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 			if(model!=null){
 				model.insertString(model.getLength(), msg+"\n", null);
 			}
-			System.out.println(msg);
+			System.out.println("PrintMsg : " + msg);
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,8 +88,8 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 			if(BroadcastThread.addClient(newUser, client)){
 				client.start();			
 				clientListModel.addElement(newUser.getLogin());
-				BroadcastThread.loadUserByMessage();
-				dos.writeUTF(ADD+login);
+				BroadcastThread.loadUserByMessage("Salon principal");
+				dos.writeUTF(ADD+login+"#Salon principal");
 			}
 			else
 			{

@@ -68,17 +68,26 @@ public class ServerToClientThread extends Thread{
 				try {
 					if(streamIn.available()>0){
 						String line = streamIn.readUTF();
-						String[] userMsg=line.split(IfClientServerProtocol.SEPARATOR);
-						String login=userMsg[1];
-						String msg=userMsg[2];
+						System.out.println("line : " + line);
+						String login ="";
+						String msg="";
+						String salon ="";
+						String newLine = line.substring(IfClientServerProtocol.ADD.length());
+						String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
+						System.out.println("UserMSG[1] = " +userMsg[1]);
+						login=userMsg[0];
+						salon = userMsg[1];
+						if(line.startsWith(IfClientServerProtocol.Salon) || line.startsWith(IfClientServerProtocol.Whispers))
+						msg =userMsg[2];
+						
 						done = msg.equals(".bye");
 						if(!done){
 							
 							if(login.equals(user)){
 								System.err.println("ServerToClientThread::run(), login!=user"+login);
 							}
-							if(line.equals(IfClientServerProtocol.DEL + user.getLogin())) {
-								BroadcastThread.sendMessage(user,"",IfClientServerProtocol.DEL);
+							if(line.startsWith(IfClientServerProtocol.DEL + user.getLogin())) {
+								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
 								BroadcastThread.removeClient(user);
 								clientListModel.clear();
 								for (User user : BroadcastThread.clientTreadsMap.keySet()) {
@@ -87,9 +96,21 @@ public class ServerToClientThread extends Thread{
 								System.out.println("Delete " + user.getLogin());
 							}
 							else if(line.startsWith(IfClientServerProtocol.Whispers)){
-								BroadcastThread.sendPrivateMessage(user, userMsg[3], userMsg[4]);
+								BroadcastThread.sendPrivateMessage(user, salon, msg);
 							}
-							else BroadcastThread.sendMessage(user,msg,IfClientServerProtocol.Message);
+							else if(line.startsWith(IfClientServerProtocol.Salon)){
+								BroadcastThread.sendMessage(user,salon,msg,IfClientServerProtocol.Message);
+							}
+							else if(line.startsWith(IfClientServerProtocol.RemoveFromSalon)){
+								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
+							}
+							else if(line.startsWith(IfClientServerProtocol.AddToSalon)){
+								BroadcastThread.SalonMap.remove(user);
+								System.out.println("ADDtoSalon salon : " + userMsg[2]);
+								BroadcastThread.SalonMap.put(user, userMsg[2]);
+								BroadcastThread.loadUserByMessage(userMsg[2]);
+								BroadcastThread.sendMessage(user,userMsg[2],"",IfClientServerProtocol.ADD);
+							}
 						}
 					}
 					else{

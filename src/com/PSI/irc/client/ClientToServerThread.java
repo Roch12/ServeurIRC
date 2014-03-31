@@ -21,6 +21,7 @@ import javax.swing.text.StyledDocument;
 
 import com.PSI.controller.ClientLauncher;
 import com.PSI.irc.IfClientServerProtocol;
+import com.PSI.irc.server.User;
 
 public class ClientToServerThread extends Thread implements IfSenderModel{
 	
@@ -89,7 +90,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			Style styleGP) {
         try {        
         	if(ClientLauncher.tabSelected != -1){
-        	documentModel = ClientLauncher.listDocuments.get("Salon Principal");
+        	documentModel = ClientLauncher.documentModel;
 			documentModel.insertString(documentModel.getLength(), user+" : ", styleBI);
 			documentModel.insertString(documentModel.getLength(), line+"\n", styleGP);
         	}
@@ -101,8 +102,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
     
 	void readMsg() throws IOException{
 		String line = streamIn.readUTF();
-		System.out.println(line);
-		System.out.println(line);
+		System.out.println("ReadMsg : " + line);
 		
 		if(line.startsWith(IfClientServerProtocol.Whispers))
 		{
@@ -134,21 +134,28 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			}	
 		}
 		else if(line.startsWith(IfClientServerProtocol.ADD)){
-			String newUser=line.substring(IfClientServerProtocol.ADD.length());
-			if(!clientListModel.contains(newUser)){
-				clientListModel.addElement(newUser);
-				receiveMessage(newUser, " entre dans le salon...");
+			String[] userPlace = line.split(IfClientServerProtocol.SEPARATOR);
+			if(userPlace.length > 2){
+			if(!clientListModel.contains(userPlace[2]) && ClientLauncher.SalonName.startsWith(userPlace[3]) && !login.equals(userPlace[2]) ){
+				clientListModel.addElement(userPlace[2]);
+				receiveMessage(userPlace[2], " entre dans le salon...");
+			}
 			}
 		}
 		else if(line.startsWith(IfClientServerProtocol.DEL)){
 			String delUser=line.substring(IfClientServerProtocol.DEL.length());
-			if(clientListModel.contains(delUser)){
+			String[] delUsers = delUser.split(IfClientServerProtocol.SEPARATOR);
+			String user = delUsers[0];
+			String salon = delUsers[1];
+			System.out.println("del user : " + delUsers[0]);
+			if(clientListModel.contains(user)){
 				ClientLauncher.frame.getList().setSelectedValue(null, false);
-				clientListModel.removeElement(delUser);
+				clientListModel.removeElement(user);
+				ClientLauncher.listDocuments.remove(user);
 				for (int i = 0; i < ClientLauncher.frame.getTabbedPane().getTabCount(); i++) {
-					System.out.println("Title : " + ClientLauncher.frame.getTabbedPane().getTitleAt(i) + " - " + delUser);
+					System.out.println("Title : " + ClientLauncher.frame.getTabbedPane().getTitleAt(i) + " - " + user);
 					
-					if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).startsWith(delUser)){
+					if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).startsWith(delUsers[0])){
 						System.out.println("DelUser on TabbedPane");
 						ClientLauncher.frame.getTabbedPane().setSelectedIndex(0);
 						ClientLauncher.frame.getTabbedPane().remove(i);
@@ -156,13 +163,17 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 					}
 						
 				}
-				receiveMessage(delUser, " quitte le salon !");
+				
+				receiveMessage(user, " quitte le salon !");
 			}
 		}
 		else{
-			String[] userMsg=line.split(IfClientServerProtocol.SEPARATOR);
-			String user=userMsg[1];
-			receiveMessage(user, userMsg[2]);
+			
+			String newLine = line.substring(IfClientServerProtocol.Salon.length());
+			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
+			String user=userMsg[0];
+			if(userMsg[1].startsWith(ClientLauncher.SalonName))
+				receiveMessage(user, userMsg[2]);
 		}
 	}
 	
@@ -180,8 +191,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	private boolean sendMsg() throws IOException{
 		boolean res=false;
 		if(msgToSend!=null){
-			if(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected).startsWith("Salon"))
-			streamOut.writeUTF("#"+login+"#"+msgToSend);
+			if(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected).startsWith("Salon")){
+			System.out.println("SendMsg : #S#"+login+"#"+ClientLauncher.SalonName+"#"+msgToSend);
+			streamOut.writeUTF("#S#"+login+"#"+ClientLauncher.SalonName+"#"+msgToSend);
+			}
 			else{
 			streamOut.writeUTF(IfClientServerProtocol.Whispers+login+"#"+ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected)+"#"+msgToSend);
 			StyledDocument doc = ClientLauncher.listDocuments.get(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected));
@@ -201,9 +214,19 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		return res;
 	}
 	
+	public void ChangeSalon(String BeforeSalon, String NextSalon){
+		try {
+			streamOut.writeUTF(IfClientServerProtocol.RemoveFromSalon+login+"#"+BeforeSalon);
+			Thread.sleep(100);
+			streamOut.writeUTF(IfClientServerProtocol.AddToSalon+login+"#"+NextSalon);
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void quitServer() throws IOException{
-		streamOut.writeUTF(IfClientServerProtocol.DEL+login);
-		System.out.println("QuitServer : " + IfClientServerProtocol.DEL+login);
+		streamOut.writeUTF(IfClientServerProtocol.DEL+login+"#"+ClientLauncher.SalonName);
+		System.out.println("QuitServer : " + IfClientServerProtocol.DEL+login+"#"+ClientLauncher.SalonName);
 		streamOut.flush();
 		done=true;
 	}
@@ -214,7 +237,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		try {
 			open();
 			done = !authentification();
-			System.out.println(done);
+			System.out.println("Authentification : " + done);
 			if(!done && !launcher)
 			{
 				ClientLauncher.launchClient(this);

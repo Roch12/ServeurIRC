@@ -31,18 +31,22 @@ import com.mroch.view.CreateDialogConnection;
 public class ClientLauncher {
 
 	public static Boolean error = false;
-	public static final DefaultStyledDocument documentModel = new DefaultStyledDocument();
+	public static DefaultStyledDocument documentModel = new DefaultStyledDocument();
 	public static final DefaultStyledDocument userInput = new DefaultStyledDocument();
 	public static DefaultListModel<String> listModel = new DefaultListModel<String>();
 	public static HashMap<String, StyledDocument> listDocuments=new HashMap<String, StyledDocument>();
+	public static ArrayList<String> listSalon = new ArrayList<String>();
+	public static String SalonName = "Salon principal";
 	static{
 		Collections.synchronizedMap(listDocuments);
+		listSalon.add("Salon principal");
+		listSalon.add("Salon Secondaire");
+		listSalon.add("Salon Terciaire");
 	}
 	
 	public static int tabSelected = 0;
 	public static  ClientIRCWindow frame;
 	public static void main(String[] args) {
-				listDocuments.put("Salon Principal",documentModel);
 				final CreateDialogConnection dialogConnection = new CreateDialogConnection();
 				dialogConnection.setDefaultCloseOperation(dialogConnection.DISPOSE_ON_CLOSE);
 				dialogConnection.setVisible(true);
@@ -89,7 +93,7 @@ public class ClientLauncher {
 	}
 	public static void launchClient( final ClientToServerThread client)
 	{
-		frame = new ClientIRCWindow(documentModel, userInput, listModel);
+		frame = new ClientIRCWindow(documentModel, userInput, listModel, listSalon);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -102,13 +106,12 @@ public class ClientLauncher {
 				}
 			}
 		});
-		
+
 		frame.getTabbedPane().addChangeListener(new ChangeListener() {
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				tabSelected = frame.getTabbedPane().getSelectedIndex();
-				//if(tabSelected > 0) frame.getTabsList().get(frame.getTabbedPane().getTitleAt(tabSelected)).setBackground(null);
 				frame.getTabbedPane().setBackgroundAt(tabSelected, null);
 				System.out.println("change tab : " + tabSelected);
 				
@@ -120,7 +123,7 @@ public class ClientLauncher {
 			public void mouseClicked(MouseEvent arg0) {
 				boolean res = true;
 				for (int i = 0; i < frame.getTabbedPane().countComponents(); i++) {
-					if(frame.getTabbedPane().getTitleAt(i) == listModel.get(frame.getList().getSelectedIndex()) || frame.getList().getSelectedIndex() == 0 )
+					if(frame.getTabbedPane().getTitleAt(i) == listModel.get(frame.getList().getSelectedIndex()) )
 						res = false;
 				}
 				if(res){ 
@@ -153,6 +156,24 @@ public class ClientLauncher {
 					}
 					
 				}
+			}
+		});
+		frame.getBtnChanger().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				listModel.clear();
+				for (int i = 1; i < frame.getTabbedPane().getTabCount(); i++) {
+						ClientLauncher.frame.getTabbedPane().setSelectedIndex(0);
+						ClientLauncher.frame.getTabbedPane().remove(i);
+						ClientLauncher.frame.getTabbedPane().repaint();
+					}
+				listDocuments.clear();
+				client.ChangeSalon(SalonName, frame.getComboBoxSalon().getSelectedItem().toString());
+				SalonName = frame.getComboBoxSalon().getSelectedItem().toString();
+				System.out.println(SalonName);
+				frame.getTabbedPane().setTitleAt(0, SalonName);
+				documentModel = new DefaultStyledDocument();
+				frame.getTextAreaSalon().setDocument(documentModel);
 			}
 		});
 		frame.setVisible(true);

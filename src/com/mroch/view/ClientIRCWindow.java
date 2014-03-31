@@ -29,6 +29,8 @@ import java.util.List;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
 
 
 public class ClientIRCWindow extends JFrame {
@@ -39,15 +41,19 @@ public class ClientIRCWindow extends JFrame {
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
 	private HashMap<Integer,Component> tabs;
+	private JTextArea textAreaSalon;
+	private JSplitPane splitPane_1;
+	private JComboBox comboBoxSalon;
+	private JButton btnChanger;
 
 	/**
 	 * Create the frame.
 	 */
-	public ClientIRCWindow(Document documentModel, Document userInput, ListModel<String> listModel) {
+	public ClientIRCWindow(Document documentModel, Document userInput, ListModel<String> listModel, ArrayList<String> listSalon) {
 		
 		tabs = new HashMap<Integer,Component>();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 636, 392);
+		setBounds(100, 100, 1028, 628);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -65,17 +71,18 @@ public class ClientIRCWindow extends JFrame {
 		
 
 		
-		JTextArea textArea = new JTextArea(documentModel);
+		textAreaSalon = new JTextArea(documentModel);
 		JScrollPane scroll = new JScrollPane();
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scroll.setViewportView(textArea);
-		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		scroll.setViewportView(textAreaSalon);
+		DefaultCaret caret = (DefaultCaret)textAreaSalon.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		tabbedPane.add("Salon Principal",scroll);
+		//tabbedPane.ge
 		panel.add(tabbedPane);
-		textArea.setEditable(false);
-		textArea.setBackground(Color.WHITE);
+		textAreaSalon.setEditable(false);
+		textAreaSalon.setBackground(Color.WHITE);
 		
 		
 		
@@ -96,7 +103,18 @@ public class ClientIRCWindow extends JFrame {
 	
 		panel_1.add(list);
 		
-				list.setPreferredSize(new Dimension(100, 0));
+				list.setPreferredSize(new Dimension(200, 0));
+				
+				splitPane_1 = new JSplitPane();
+				splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+				panel_1.add(splitPane_1, BorderLayout.SOUTH);
+				
+				comboBoxSalon = new JComboBox(listSalon.toArray());
+				splitPane_1.setLeftComponent(comboBoxSalon);
+				
+				btnChanger = new JButton("Changer de salon");
+
+				splitPane_1.setRightComponent(btnChanger);
 				
 	}
 
@@ -129,6 +147,15 @@ public class ClientIRCWindow extends JFrame {
 	}
 	public JTabbedPane getTabbedPane() {
 		return tabbedPane;
+	}
+	public JTextArea getTextAreaSalon() {
+		return textAreaSalon;
+	}
+	public JButton getBtnChanger() {
+		return btnChanger;
+	}
+	public JComboBox getComboBoxSalon() {
+		return comboBoxSalon;
 	}
 }
 

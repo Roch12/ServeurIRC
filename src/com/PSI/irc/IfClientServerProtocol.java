@@ -10,4 +10,7 @@ public interface IfClientServerProtocol {
 	public static final String Message = "##";
 	public static final String Whispers = "#W#";
 	public static final String ErrorUsername = "#USERNAME#";
+	public static final String Salon = "#S#";
+	public static final String RemoveFromSalon = "#-S#";
+	public static final String AddToSalon = "#+S#";
 }
