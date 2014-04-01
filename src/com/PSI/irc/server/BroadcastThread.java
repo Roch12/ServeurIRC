@@ -1,12 +1,12 @@
 package com.PSI.irc.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 
+import com.PSI.controller.ServeurLauncher;
 import com.PSI.irc.IfClientServerProtocol;
 
 public class BroadcastThread extends Thread {
@@ -30,6 +30,7 @@ public class BroadcastThread extends Thread {
 			clientTreadsMap.put(user, serverToClientThread);
 			SalonMap.put(user,"Salon principal");
 			sendMessage(user,"Salon principal", "", IfClientServerProtocol.ADD);
+			ServeurLauncher.LoadTree();
 		}
 		return res;
 	}
@@ -67,6 +68,18 @@ public class BroadcastThread extends Thread {
 			System.out.println("Reload " + SalonMap.get(user) + " pour " + user.getLogin());
 			}
 		}
+	}
+	
+	public static ArrayList<User> GetUsersBySalon(String salon){
+		ArrayList<User> listUsers = new ArrayList<User>();
+		for (User user : SalonMap.keySet()) {
+			if(SalonMap.get(user).equals(salon))
+			{
+				listUsers.add(user);
+			}
+		}
+		
+		return listUsers;
 	}
 	
 	public static void removeClient(User user){

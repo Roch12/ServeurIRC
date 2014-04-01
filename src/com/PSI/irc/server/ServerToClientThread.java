@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 
+import com.PSI.controller.ServeurLauncher;
 import com.PSI.irc.IfClientServerProtocol;
 
 public class ServerToClientThread extends Thread{
@@ -94,6 +95,7 @@ public class ServerToClientThread extends Thread{
 									clientListModel.addElement(user.getLogin());
 								}
 								System.out.println("Delete " + user.getLogin());
+								ServeurLauncher.LoadTree();
 							}
 							else if(line.startsWith(IfClientServerProtocol.Whispers)){
 								BroadcastThread.sendPrivateMessage(user, salon, msg);
@@ -110,6 +112,7 @@ public class ServerToClientThread extends Thread{
 								BroadcastThread.SalonMap.put(user, userMsg[2]);
 								BroadcastThread.loadUserByMessage(userMsg[2]);
 								BroadcastThread.sendMessage(user,userMsg[2],"",IfClientServerProtocol.ADD);
+								ServeurLauncher.LoadTree();
 							}
 						}
 					}
