@@ -8,13 +8,15 @@ import java.net.Socket;
 
 import javax.swing.DefaultListModel;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
+import com.PSI.controller.ServeurLauncher;
 import com.PSI.irc.IfClientServerProtocol;
 
 public class ClientConnectThread extends Thread implements IfClientServerProtocol {
 	StyledDocument model=null;
-	DefaultListModel<String> clientListModel;		
+	DefaultStyledDocument modelChat = null;
 	
 	private boolean canStop=false;
 	private ServerSocket server = null;
@@ -31,10 +33,10 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		}
 	}
 	
-	public ClientConnectThread(int port, StyledDocument model, DefaultListModel<String> clientListModel) {
+	public ClientConnectThread(int port, StyledDocument model, DefaultStyledDocument modelChat) {
 		try {
 			this.model=model;
-			this.clientListModel=clientListModel;
+			this.modelChat = modelChat;
 			printMsg("Binding to port " + port + ", please wait  ...");
 			server = new ServerSocket(port);
 			printMsg("Server started: " + server);
@@ -81,13 +83,12 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		boolean isUserOK=authentication(newUser);
 		if(isUserOK){
 			
-			ServerToClientThread client=new ServerToClientThread(newUser, socket, clientListModel);
+			ServerToClientThread client=new ServerToClientThread(newUser, socket, modelChat);
 			dos.writeUTF(OK);
 
 			// Add user
 			if(BroadcastThread.addClient(newUser, client)){
-				client.start();			
-				clientListModel.addElement(newUser.getLogin());
+				client.start();
 				BroadcastThread.loadUserByMessage("Salon principal");
 				dos.writeUTF(ADD+login+"#Salon principal");
 			}

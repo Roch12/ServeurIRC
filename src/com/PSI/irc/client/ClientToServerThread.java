@@ -8,10 +8,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.List;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -21,7 +22,7 @@ import javax.swing.text.StyledDocument;
 
 import com.PSI.controller.ClientLauncher;
 import com.PSI.irc.IfClientServerProtocol;
-import com.PSI.irc.server.User;
+import com.PSI.irc.server.ServerToClientThread;
 
 public class ClientToServerThread extends Thread implements IfSenderModel{
 	
@@ -65,6 +66,27 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		this.login=login;
 		this.pwd=pwd;
 	}
+	
+	public static synchronized void playSound(final String url) {
+		  Thread t = new Thread(new Runnable() {
+		  // The wrapper thread is unnecessary, unless it blocks on the
+		  // Clip finishing; see comments.
+		    public void run() {
+		      try {
+		    	Clip clip = AudioSystem.getClip();
+		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+		        ServerToClientThread.class.getResourceAsStream("/" +url + "_modif.wav"));
+		        
+		        clip.open(inputStream);
+		        clip.start(); 
+		      } catch (Exception e) {
+		    	  e.printStackTrace();
+		      }
+		    }
+		  });
+		  t.setDaemon(true);
+		  t.start();
+		}
 	
 	public void open() throws IOException {
 		console = new BufferedReader(new InputStreamReader(System.in));
@@ -120,7 +142,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			
 			for (int i = 0; i < ClientLauncher.frame.getTabbedPane().countComponents(); i++) {
 				if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).equals(userMsg[0]) && ClientLauncher.tabSelected != i)
+				{
+					playSound("BOP");
 					ClientLauncher.frame.getTabbedPane().setBackgroundAt(i, new Color(255,160,0));
+				}
 			}
 			
 			Style styleBI = ((StyledDocument)document).getStyle(BOLD_ITALIC);
@@ -134,9 +159,11 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			}	
 		}
 		else if(line.startsWith(IfClientServerProtocol.ADD)){
+			
 			String[] userPlace = line.split(IfClientServerProtocol.SEPARATOR);
 			if(userPlace.length > 2){
 			if(!clientListModel.contains(userPlace[2]) && ClientLauncher.SalonName.startsWith(userPlace[3]) && !login.equals(userPlace[2]) ){
+				playSound("lawardine");
 				clientListModel.addElement(userPlace[2]);
 				receiveMessage(userPlace[2], " entre dans le salon...");
 			}
@@ -225,6 +252,14 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	}
 	
 	public void quitServer() throws IOException{
+
+		try {
+			playSound("adishatz");
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		streamOut.writeUTF(IfClientServerProtocol.DEL+login+"#"+ClientLauncher.SalonName);
 		System.out.println("QuitServer : " + IfClientServerProtocol.DEL+login+"#"+ClientLauncher.SalonName);
 		streamOut.flush();

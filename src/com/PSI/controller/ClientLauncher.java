@@ -1,4 +1,5 @@
 package com.PSI.controller;
+import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -112,6 +114,7 @@ public class ClientLauncher {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				tabSelected = frame.getTabbedPane().getSelectedIndex();
+				
 				frame.getTabbedPane().setBackgroundAt(tabSelected, null);
 				System.out.println("change tab : " + tabSelected);
 				

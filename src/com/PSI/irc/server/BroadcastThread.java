@@ -82,6 +82,13 @@ public class BroadcastThread extends Thread {
 		return listUsers;
 	}
 	
+	public static User GetUserByName(String username){
+		for (User user : clientTreadsMap.keySet()) {
+			if(user.getLogin().equals(username)) return user;
+		}
+		return null;
+	}
+	
 	public static void removeClient(User user){
 		clientTreadsMap.remove(user);
 		SalonMap.remove(user);

@@ -8,23 +8,30 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyledDocument;
 
 import com.PSI.controller.ServeurLauncher;
 import com.PSI.irc.IfClientServerProtocol;
 
 public class ServerToClientThread extends Thread{
+	
+    public static final String BOLD_ITALIC = "BoldItalic";
+    public static final String GRAY_PLAIN = "Gray";
 	private User user;
 	public Socket socket = null;
-	private DefaultListModel<String> clientListModel = null;
+	public long time = System.currentTimeMillis();
 	private DataInputStream streamIn = null;
 	private DataOutputStream streamOut = null;
+	private DefaultStyledDocument doc = null;
 	
-	public ServerToClientThread(User user, Socket socket,DefaultListModel<String> clientListModel) {
+	public ServerToClientThread(User user, Socket socket, DefaultStyledDocument doc) {
 		super();
 		this.user=user;
 		this.socket = socket;
-		this.clientListModel = clientListModel;
+		this.doc = doc;
 	}
 	
 	List<String> msgToPost=new ArrayList<String>();
@@ -32,6 +39,8 @@ public class ServerToClientThread extends Thread{
 	public synchronized void post(String msg){
 		msgToPost.add(msg);
 	}
+	
+	
 	
 	private synchronized void doPost(){
 		try {
@@ -90,10 +99,6 @@ public class ServerToClientThread extends Thread{
 							if(line.startsWith(IfClientServerProtocol.DEL + user.getLogin())) {
 								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
 								BroadcastThread.removeClient(user);
-								clientListModel.clear();
-								for (User user : BroadcastThread.clientTreadsMap.keySet()) {
-									clientListModel.addElement(user.getLogin());
-								}
 								System.out.println("Delete " + user.getLogin());
 								ServeurLauncher.LoadTree();
 							}
@@ -101,7 +106,12 @@ public class ServerToClientThread extends Thread{
 								BroadcastThread.sendPrivateMessage(user, salon, msg);
 							}
 							else if(line.startsWith(IfClientServerProtocol.Salon)){
+								
 								BroadcastThread.sendMessage(user,salon,msg,IfClientServerProtocol.Message);
+								Style styleGP = ((StyledDocument)doc).getStyle(GRAY_PLAIN);
+								Style styleBI = ((StyledDocument)doc).getStyle(BOLD_ITALIC);
+								doc.insertString(doc.getLength(), BroadcastThread.clientTreadsMap.get(user).socket.getInetAddress().getHostAddress()+ " | "+user.getLogin() +" : ", styleBI);
+								doc.insertString(doc.getLength(), msg+"\n", styleGP);
 							}
 							else if(line.startsWith(IfClientServerProtocol.RemoveFromSalon)){
 								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
@@ -120,7 +130,7 @@ public class ServerToClientThread extends Thread{
 						doPost();
 					}
 				} 
-				catch (IOException ioe) {
+				catch (IOException | BadLocationException ioe) {
 					done = true;
 				}
 			}
