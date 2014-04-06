@@ -45,12 +45,15 @@ public class ClientLauncher {
 	static{
 		Collections.synchronizedMap(listDocuments);
 		listSalon.add("Salon principal");
-		listSalon.add("Salon Secondaire");
-		listSalon.add("Salon Terciaire");
 	}
 	
 	public static int tabSelected = 0;
 	public static  ClientIRCWindow frame;
+	
+	/**
+	 * Launch the Client Application
+	 * @param args
+	 */
 	public static void main(String[] args) {
 				final CreateDialogConnection dialogConnection = new CreateDialogConnection();
 				dialogConnection.setDefaultCloseOperation(dialogConnection.DISPOSE_ON_CLOSE);
@@ -59,34 +62,54 @@ public class ClientLauncher {
 				dialogConnection.getOkButton().addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent arg0) {
+						//vérification des champs
 						if(!dialogConnection.getTxtLocalhost().getText().isEmpty() && 
 								!dialogConnection.getTxtAnonymous().getText().isEmpty() && 
-								!dialogConnection.getTextField_1().getText().isEmpty() && 
-								!dialogConnection.getTextField_3().getText().isEmpty())
+								!dialogConnection.getTxtPort().getText().isEmpty() && 
+								!dialogConnection.getTxtPassword().getText().isEmpty())
 						{
 							try {
+								//création du socket pour la connexion
 								launchSocket(dialogConnection.getTxtLocalhost().getText(),
-										Integer.parseInt(dialogConnection.getTextField_1().getText()),
+										Integer.parseInt(dialogConnection.getTxtPort().getText()),
 										dialogConnection.getTxtAnonymous().getText(),
-										dialogConnection.getTextField_3().getText());
+										dialogConnection.getTxtPassword().getText());
 								dialogConnection.dispose();
 							} catch (IOException e) {
+								//Erreur en cas de serveur indisponible
 								JOptionPane.showMessageDialog(dialogConnection, "Le serveur que vous avez demandé est actuellement indisponible, \n Veuillez vérifier votre adresse de connection et réessayer ultérieurement.");
 							}
 							catch(NumberFormatException e)
 							{
+								//Erreur en cas de mauvaise écriture du port
 								JOptionPane.showMessageDialog(dialogConnection, "Veuillez vérifier le port de connexion !");
 							}
 						}
 						else
 						{
+							//Erreur en cas de non remplissage des champs
 							JOptionPane.showMessageDialog(dialogConnection, "Erreur, Veuillez remplir tout les champs !");
 						}
 					}
 				});
 				
+				dialogConnection.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent arg0){
+						dialogConnection.dispose();
+					}
+				});
+				
 		}
 		
+	/**
+	 * Launch Socket and create ClientToServerThread
+	 * @param adresse
+	 * @param port
+	 * @param username
+	 * @param mdp
+	 * @throws IOException
+	 */
 	public static void launchSocket(String adresse, int port,String username, String mdp) throws IOException
 	{
 		Socket socket = null;
@@ -96,11 +119,18 @@ public class ClientLauncher {
 		client.open();
 		client.start();
 	}
+	
+	/**
+	 * Création de l'interface client
+	 * @param client
+	 */
 	public static void launchClient( final ClientToServerThread client)
 	{
 		frame = new ClientIRCWindow(documentModel, userInput, listModel, listSalon);
 		frame.getUserName().setText(client.login);
 		frame.getNbusers().setText(client.nbUsers.toString());
+		
+		//Event en cas de fermeture de l'application
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -114,6 +144,7 @@ public class ClientLauncher {
 			}
 		});
 
+		//Event en cas de changement de tab
 		frame.getTabbedPane().addChangeListener(new ChangeListener() {
 			
 			@Override
@@ -126,6 +157,7 @@ public class ClientLauncher {
 			}
 		});
 		
+		//Event en cas de click sur un utilisateur
 		frame.getList().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -145,6 +177,8 @@ public class ClientLauncher {
 				}
 			}
 		});
+		
+		//Event pour envoyer le texte quand on appuie sur la touche Entrée
 		frame.getTextField().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -168,6 +202,8 @@ public class ClientLauncher {
 				}
 			}
 		});
+		
+		//Event en cas de click sur le bouton Changer de salon
 		frame.getBtnChanger().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -183,7 +219,7 @@ public class ClientLauncher {
 				System.out.println(SalonName);
 				frame.getTabbedPane().setTitleAt(0, SalonName);
 				documentModel = new DefaultStyledDocument();
-				frame.getTextAreaSalon().setDocument(documentModel);
+				frame.getTextPaneSalon().setDocument(documentModel);
 			}
 		});
 		frame.setVisible(true);

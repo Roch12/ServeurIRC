@@ -17,10 +17,11 @@ public class CreateDialogConnection extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtLocalhost;
-	private JTextField textField_1;
+	private JTextField txtPort;
 	private JTextField txtAnonymous;
-	private JTextField textField_3;
+	private JTextField txtPassword;
 	private JButton okButton;
+	private JButton cancelButton;
 
 	/**
 	 * Create the dialog.
@@ -50,11 +51,11 @@ public class CreateDialogConnection extends JDialog {
 			contentPanel.add(lblPort);
 		}
 		{
-			textField_1 = new JTextField();
-			textField_1.setText("4567");
-			textField_1.setBounds(481, 13, 80, 32);
-			contentPanel.add(textField_1);
-			textField_1.setColumns(10);
+			txtPort = new JTextField();
+			txtPort.setText("4567");
+			txtPort.setBounds(481, 13, 80, 32);
+			contentPanel.add(txtPort);
+			txtPort.setColumns(10);
 		}
 		
 		JLabel lblUsername = new JLabel("Username : ");
@@ -71,10 +72,10 @@ public class CreateDialogConnection extends JDialog {
 		lblMotDePasse.setBounds(29, 137, 160, 26);
 		contentPanel.add(lblMotDePasse);
 		
-		textField_3 = new JTextField();
-		textField_3.setBounds(193, 134, 368, 32);
-		contentPanel.add(textField_3);
-		textField_3.setColumns(10);
+		txtPassword = new JTextField();
+		txtPassword.setBounds(193, 134, 368, 32);
+		contentPanel.add(txtPassword);
+		txtPassword.setColumns(10);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -86,26 +87,59 @@ public class CreateDialogConnection extends JDialog {
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
-				JButton cancelButton = new JButton("Cancel");
+				cancelButton = new JButton("Cancel");
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
 		}
 		
 	}
+	
+	/**
+	 * Récuperer le boutton de connexion
+	 * @return JButton
+	 */
 	public JButton getOkButton() {
 		return okButton;
 	}
+	
+	/**
+	 * Récuperer le JTextField de l'adresse IP
+	 * @return
+	 */
 	public JTextField getTxtLocalhost() {
 		return txtLocalhost;
 	}
-	public JTextField getTextField_1() {
-		return textField_1;
+	
+	/**
+	 * Récupérer le JTextField du Port
+	 * @return JTextField
+	 */
+	public JTextField getTxtPort() {
+		return txtPort;
 	}
+	
+	/**
+	 * Récupérer le JTextField du pseudo
+	 * @return JTextField
+	 */
 	public JTextField getTxtAnonymous() {
 		return txtAnonymous;
 	}
-	public JTextField getTextField_3() {
-		return textField_3;
+	
+	/**
+	 * Récupérer le JTextField du Password
+	 * @return JTextField
+	 */
+	public JTextField getTxtPassword() {
+		return txtPassword;
+	}
+	
+	/**
+	 * Récupérer le Button de cancel
+	 * @return JButton
+	 */
+	public JButton getCancelButton(){
+		return cancelButton;
 	}
 }

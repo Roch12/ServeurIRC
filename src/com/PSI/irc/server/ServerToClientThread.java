@@ -28,6 +28,12 @@ public class ServerToClientThread extends Thread{
 	private DataOutputStream streamOut = null;
 	private DefaultStyledDocument doc = null;
 	
+	/**
+	 * Constructeur
+	 * @param user
+	 * @param socket
+	 * @param doc
+	 */
 	public ServerToClientThread(User user, Socket socket, DefaultStyledDocument doc) {
 		super();
 		this.user=user;
@@ -37,12 +43,18 @@ public class ServerToClientThread extends Thread{
 	
 	List<String> msgToPost=new ArrayList<String>();
 	
+	/**
+	 * Poster un message
+	 * @param msg
+	 */
 	public synchronized void post(String msg){
 		msgToPost.add(msg);
 	}
 	
 	
-	
+	/**
+	 * Création du message à envoyé
+	 */
 	private synchronized void doPost(){
 		try {
 			for (String msg : msgToPost) {
@@ -57,10 +69,21 @@ public class ServerToClientThread extends Thread{
 		}
 	}
 	
+	
+	
+	/**
+	 * Ouverture des flux entrants/sortants
+	 * @throws IOException
+	 */
 	public void open() throws IOException {
 		streamIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 		streamOut = new DataOutputStream(socket.getOutputStream());
 	}
+	
+	/**
+	 * Fermeture des flux entrants/sortants et du socket
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		if (socket != null)
 			socket.close();
@@ -97,15 +120,18 @@ public class ServerToClientThread extends Thread{
 							if(login.equals(user)){
 								System.err.println("ServerToClientThread::run(), login!=user"+login);
 							}
+							//si un utilisateur se déconnecte
 							if(line.startsWith(IfClientServerProtocol.DEL + user.getLogin())) {
 								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
 								BroadcastThread.removeClient(user);
 								System.out.println("Delete " + user.getLogin());
 								ServeurLauncher.loadTree();
 							}
+							//si un utilisateur envoie un message privé
 							else if(line.startsWith(IfClientServerProtocol.Whispers)){
 								BroadcastThread.sendPrivateMessage(user, salon, msg);
 							}
+							//si un utilisateur envoie un message sur le salon
 							else if(line.startsWith(IfClientServerProtocol.Salon)){
 								
 								BroadcastThread.sendMessage(user,salon,msg,IfClientServerProtocol.Message);
@@ -114,9 +140,11 @@ public class ServerToClientThread extends Thread{
 								doc.insertString(doc.getLength(), BroadcastThread.clientTreadsMap.get(user).socket.getInetAddress().getHostAddress()+ " | "+user.getLogin() +" : ", styleBI);
 								doc.insertString(doc.getLength(), msg+"\n", styleGP);
 							}
+							//si un utilisateur change de salon
 							else if(line.startsWith(IfClientServerProtocol.RemoveFromSalon)){
 								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
 							}
+							//si un utilisateur change de salon
 							else if(line.startsWith(IfClientServerProtocol.AddToSalon)){
 								BroadcastThread.SalonMap.remove(user);
 								System.out.println("ADDtoSalon salon : " + userMsg[2]);

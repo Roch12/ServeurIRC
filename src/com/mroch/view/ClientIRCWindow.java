@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -34,6 +35,10 @@ import javax.swing.text.StyledDocument;
 
 
 public class ClientIRCWindow extends JFrame {
+	
+	/**
+	 * Liste Paramètres pour la création de l'interface client
+	 */
 	private JPanel contentPane;
 	private JTextField sendTextField;
 	private JList<String> userList;
@@ -41,7 +46,7 @@ public class ClientIRCWindow extends JFrame {
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
 	private HashMap<Integer,Component> tabs;
-	private JTextPane textAreaSalon;
+	private JTextPane textPaneSalon;
 	private JSplitPane SalonSplitPane;
 	private JComboBox comboBoxSalon;
 	private JButton btnChanger;
@@ -57,14 +62,7 @@ public class ClientIRCWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public ClientIRCWindow(Document documentModel, Document userInput, ListModel<String> listModel, ArrayList<String> listSalon) {
-		/*try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+
 		tabs = new HashMap<Integer,Component>();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1028, 628);
@@ -85,18 +83,18 @@ public class ClientIRCWindow extends JFrame {
 		
 
 		
-		textAreaSalon = new JTextPane((StyledDocument) documentModel);
+		textPaneSalon = new JTextPane((StyledDocument) documentModel);
 		JScrollPane scroll = new JScrollPane();
 		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scroll.setViewportView(textAreaSalon);
-		DefaultCaret caret = (DefaultCaret)textAreaSalon.getCaret();
+		scroll.setViewportView(textPaneSalon);
+		DefaultCaret caret = (DefaultCaret)textPaneSalon.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		tabbedPane.add("Salon Principal",scroll);
 		panel.add(tabbedPane);
-		textAreaSalon.setEditable(false);
-		textAreaSalon.setBackground(Color.WHITE);
+		textPaneSalon.setEditable(false);
+		textPaneSalon.setBackground(Color.WHITE);
 		
 		
 		
@@ -112,7 +110,6 @@ public class ClientIRCWindow extends JFrame {
 		
 		
 		userList = new JList<String>(listModel);
-		//userList.setBackground(UIManager.getColor("InternalFrame.activeTitleGradient"));
 		
 		
 	
@@ -124,7 +121,8 @@ public class ClientIRCWindow extends JFrame {
 				SalonSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 				usersPanel.add(SalonSplitPane, BorderLayout.SOUTH);
 				
-				comboBoxSalon = new JComboBox(listSalon.toArray());
+				comboBoxSalon = new JComboBox();
+				comboBoxSalon.setModel(new DefaultComboBoxModel(listSalon.toArray()));
 				SalonSplitPane.setLeftComponent(comboBoxSalon);
 				
 				btnChanger = new JButton("Changer de salon");
@@ -160,17 +158,29 @@ public class ClientIRCWindow extends JFrame {
 				
 	}
 
+	/**
+	 * Récupérer le textfield permettant d'envoyer des messages
+	 * @return JTextField
+	 */
 	public JTextField getTextField() {
 		return sendTextField;
 	}
+	
+	/**
+	 * Récuperer la liste des utilisateurs
+	 * @return JList
+	 */
 	public JList getList() {
 		return userList;
 	}
 	
-	public HashMap<Integer,Component> getTabsList(){
-		return tabs;
-	}
 	
+	
+	/**
+	 * Ajouter une tab en cas de discussion privée
+	 * @param username
+	 * @param styledDocument
+	 */
 	public void AddPrivateUserTab(String username,StyledDocument styledDocument)
 	{
 		JTextPane textPane = new JTextPane(styledDocument);
@@ -187,26 +197,70 @@ public class ClientIRCWindow extends JFrame {
 		textPane.setEditable(false);
 		textPane.setBackground(Color.WHITE);
 	}
+	
+	/**
+	 * Récuperer le component qui gère les tabs
+	 * @return JTabbedPane
+	 */
 	public JTabbedPane getTabbedPane() {
 		return tabbedPane;
 	}
-	public JTextPane getTextAreaSalon() {
-		return textAreaSalon;
+	
+	/**
+	 * Récuperer le TextPane qui affiche les messages
+	 * @return JTextPane
+	 */
+	public JTextPane getTextPaneSalon() {
+		return textPaneSalon;
 	}
+	
+	/**
+	 * Récuperer le bouton pour changer de salon
+	 * @return JButton
+	 */
 	public JButton getBtnChanger() {
 		return btnChanger;
 	}
+	
+	/**
+	 * Récuperer la Combobox des salons
+	 * @return JComboBox
+	 */
 	public JComboBox getComboBoxSalon() {
 		return comboBoxSalon;
 	}
+	
+	/**
+	 * Récuperer le label qui affiche l'image de l'utilisateur
+	 * @return JLabel
+	 */
 	public JLabel getUserImg() {
 		return userImg;
 	}
+	
+	/**
+	 * Récupèrer le label qui affiche le pseudo de l'utilisateur
+	 * @return JLabel
+	 */
 	public JLabel getUserName() {
 		return userName;
 	}
+	
+	/**
+	 * Récupèrer le label qui affiche le nombre d'utilisateurs dans le salon
+	 * @return JLabel
+	 */
 	public JLabel getNbusers() {
 		return lblNbusers;
+	}
+	
+	/**
+	 * Mise a jour de la JcomboBox des salons
+	 * @param listSalon
+	 */
+	public void setComboBoxSalon(ArrayList<String> listSalon){
+		comboBoxSalon.setModel(new DefaultComboBoxModel(listSalon.toArray()));
+		comboBoxSalon.repaint();
 	}
 }
 

@@ -21,6 +21,10 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 	private boolean canStop=false;
 	private ServerSocket server = null;
 	
+	/**
+	 * Affichage des informations de connexion
+	 * @param msg
+	 */
 	private void printMsg(String msg){
 		try {
 			if(model!=null){
@@ -33,6 +37,12 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		}
 	}
 	
+	/**
+	 * Création du thread de connexion serveur
+	 * @param port
+	 * @param model
+	 * @param modelChat
+	 */
 	public ClientConnectThread(int port, StyledDocument model, DefaultStyledDocument modelChat) {
 		try {
 			this.model=model;
@@ -67,6 +77,12 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		}
 	}
 
+	/**
+	 * Accepter un client sur le serveur
+	 * @param socket
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private void acceptClient(Socket socket) throws IOException, InterruptedException {
 		// Read user login and pwd
 		DataInputStream dis=new DataInputStream(socket.getInputStream());
@@ -90,6 +106,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 			if(BroadcastThread.addClient(newUser, client)){
 				client.start();
 				BroadcastThread.loadUserByMessage("Salon principal");
+				BroadcastThread.loadAllSalons(client);
 				dos.writeUTF(ADD+login+"#Salon principal");
 			}
 			else
@@ -108,14 +125,27 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 		}
 	}
 	
+	/**
+	 * Authentification de l'utilisateur
+	 * @param newUser
+	 * @return boolean
+	 */
 	private boolean authentication(User newUser){
 		return BroadcastThread.accept(newUser);
 	}
 
 	
+	/**
+	 * Ouverture du flux
+	 * @throws IOException
+	 */
 	public void open() throws IOException {
 	}
 	
+	/**
+	 * Fermeture du flux
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		System.err.println("server:close()");
 		if (server != null)

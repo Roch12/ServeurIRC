@@ -13,4 +13,6 @@ public interface IfClientServerProtocol {
 	public static final String Salon = "#S#";
 	public static final String RemoveFromSalon = "#-S#";
 	public static final String AddToSalon = "#+S#";
+	public static final String AddSalon = "#SA#";
+	public static final String removeSalon = "#SR#";
 }

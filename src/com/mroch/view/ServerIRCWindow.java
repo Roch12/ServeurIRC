@@ -29,11 +29,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.JButton;
 
 public class ServerIRCWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTree tree;
+	private JButton btnAjouter;
+	private JButton btnSupprimer;
 
 	/**
 	 * Create the frame.
@@ -118,6 +121,16 @@ public class ServerIRCWindow extends JFrame {
 		tree.setMaximumSize(new Dimension(200, 64));
 		tree.setPreferredSize(new Dimension(173, 450));
 		
+		JSplitPane GestionSalonSplitPane = new JSplitPane();
+		GestionSalonSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		panel_1.add(GestionSalonSplitPane, BorderLayout.SOUTH);
+		
+		btnAjouter = new JButton("Ajouter");
+		GestionSalonSplitPane.setLeftComponent(btnAjouter);
+		
+		btnSupprimer = new JButton("Supprimer");
+		GestionSalonSplitPane.setRightComponent(btnSupprimer);
+		
 		JPanel panel = new JPanel();
 		panel.setPreferredSize(new Dimension(250, 10));
 		contentPane.add(panel, BorderLayout.EAST);
@@ -133,7 +146,17 @@ public class ServerIRCWindow extends JFrame {
 		panel0.add(textArea, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Récuperer le JTree qui affiche les utilisateurs dans les salons
+	 * @return JTree
+	 */
 	public JTree getTree() {
 		return tree;
+	}
+	public JButton getBtnAjouter() {
+		return btnAjouter;
+	}
+	public JButton getBtnSupprimer() {
+		return btnSupprimer;
 	}
 }

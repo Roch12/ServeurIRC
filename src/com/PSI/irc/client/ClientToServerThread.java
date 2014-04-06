@@ -35,7 +35,11 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
     public static final String LABEL_STYLE = "labelstyle";
     public static Boolean launcher = false;
     public static Integer nbUsers = 1;
-        
+    
+    /**
+     * Création d'un DefaultStyledDocument général avec des styles
+     * @return DefaultStyledDocument
+     */
 	public static DefaultStyledDocument defaultDocumentModel() {
 		DefaultStyledDocument res=new DefaultStyledDocument();
 	    
@@ -73,7 +77,14 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	DefaultListModel<String> clientListModel;
 	StyledDocument documentModel;
 	
-	
+	/**
+	 * Constructeur
+	 * @param documentModel
+	 * @param clientListModel
+	 * @param socket
+	 * @param login
+	 * @param pwd
+	 */
 	public ClientToServerThread(StyledDocument documentModel, DefaultListModel<String> clientListModel, Socket socket, String login, String pwd) {
 		super();
 		this.documentModel=documentModel;
@@ -83,6 +94,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		this.pwd=pwd;
 	}
 	
+	/**
+	 * Jouer un .wav
+	 * @param url
+	 */
 	public static synchronized void playSound(final String url) {
 		  Thread t = new Thread(new Runnable() {
 		  // The wrapper thread is unnecessary, unless it blocks on the
@@ -103,12 +118,21 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		  t.setDaemon(true);
 		  t.start();
 		}
-	
+
+	/**
+	 * Ouverture des flux stream
+	 * @throws IOException
+	 */
 	public void open() throws IOException {
 		console = new BufferedReader(new InputStreamReader(System.in));
 		streamIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 		streamOut = new DataOutputStream(socket.getOutputStream());
 	}
+	
+	/**
+	 * Fermeture du socket et des flux streams
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		if (socket != null)
 			socket.close();
@@ -118,6 +142,12 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			streamOut.close();
 	}
 	
+	/**
+	 * Affichage du message en y affectant les styles
+	 * @param user
+	 * @param line
+	 * @param doc
+	 */
 	public void receiveMessage(String user, String line, Document doc){
 
 		Style styleBI = ((StyledDocument)this.defaultDocumentModel()).getStyle(BOLD_ITALIC);
@@ -126,6 +156,15 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
         receiveMessage(user, line, styleBI, styleGP, labelStyle,doc);
 	}
 	
+	/**
+	 * Affichage du message sur le StyledDocument
+	 * @param user
+	 * @param line
+	 * @param styleBI
+	 * @param styleGP
+	 * @param iconStyle
+	 * @param doc
+	 */
 	public void receiveMessage(String user, String line, Style styleBI,
 			Style styleGP, Style iconStyle, Document doc) {
         try {        
@@ -140,11 +179,16 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			e1.printStackTrace();
 		}				        	
 	}
-    
+	
+    /**
+     * Récupération du message + affichage
+     * @throws IOException
+     */
 	void readMsg() throws IOException{
 		String line = streamIn.readUTF();
 		System.out.println("ReadMsg : " + line);
 		
+		// si le message est un message privé
 		if(line.startsWith(IfClientServerProtocol.Whispers))
 		{
 			
@@ -170,6 +214,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			}
 			receiveMessage(userMsg[0], userMsg[1], document);
 		}
+		//si le message est la connexion d'un autre utilisateur
 		else if(line.startsWith(IfClientServerProtocol.ADD)){
 			
 			String[] userPlace = line.split(IfClientServerProtocol.SEPARATOR);
@@ -179,10 +224,27 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 				nbUsers++;
 				ClientLauncher.frame.getNbusers().setText(nbUsers.toString());
 				clientListModel.addElement(userPlace[2]);
-				receiveMessage(userPlace[2], " entre dans le salon...",documentModel);
+				receiveMessage(userPlace[2], " entre dans le salon...",ClientLauncher.documentModel);
 			}
 			}
 		}
+		//si un salon a été ajouté sur le serveur
+		else if(line.startsWith(IfClientServerProtocol.AddSalon)){
+			String newLine = line.substring(IfClientServerProtocol.AddSalon.length());
+			String[] salonNames = newLine.split(IfClientServerProtocol.SEPARATOR);
+			for (String salon : salonNames) {
+				ClientLauncher.listSalon.add(salon);
+				}
+			ClientLauncher.frame.setComboBoxSalon(ClientLauncher.listSalon);
+		}
+		//si un salon a été supprimé sur le serveur
+		else if(line.startsWith(IfClientServerProtocol.removeSalon)){
+			System.out.println("Remove salon to combo");
+			String salonName = line.substring(IfClientServerProtocol.AddSalon.length());
+			ClientLauncher.listSalon.remove(salonName);
+			ClientLauncher.frame.setComboBoxSalon(ClientLauncher.listSalon);
+		}
+		// si le message est la déconnexion d'un autre utilisateur
 		else if(line.startsWith(IfClientServerProtocol.DEL)){
 			String delUser=line.substring(IfClientServerProtocol.DEL.length());
 			String[] delUsers = delUser.split(IfClientServerProtocol.SEPARATOR);
@@ -207,37 +269,43 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 						
 				}
 				
-				receiveMessage(user, " quitte le salon !", documentModel);
+				receiveMessage(user, " quitte le salon !", ClientLauncher.documentModel);
 			}
 		}
+		// si le message est destiné au salon
 		else{
 			
 			String newLine = line.substring(IfClientServerProtocol.Salon.length());
 			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
 			String user=userMsg[0];
 			if(userMsg[1].startsWith(ClientLauncher.SalonName))
-				receiveMessage(user, userMsg[2],documentModel);
+				receiveMessage(user, userMsg[2],ClientLauncher.documentModel);
 		}
 	}
 	
 	String msgToSend=null;
 	
-	/* (non-Javadoc)
-	 * @see com.cfranc.irc.client.IfSenderModel#setMsgToSend(java.lang.String)
-	 */
+	
 	@Override
 	public void setMsgToSend(String msgToSend) throws IOException {
 		this.msgToSend = msgToSend;
 		sendMsg();
 	}
 
+	/**
+	 * Envoi d'un message
+	 * @return boolean
+	 * @throws IOException
+	 */
 	private boolean sendMsg() throws IOException{
 		boolean res=false;
 		if(msgToSend!=null){
-			if(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected).startsWith("Salon")){
+			//si l'utilisateur est sur la tab du salon
+			if(ClientLauncher.tabSelected == 0){
 			System.out.println("SendMsg : #S#"+login+"#"+ClientLauncher.SalonName+"#"+msgToSend);
 			streamOut.writeUTF("#S#"+login+"#"+ClientLauncher.SalonName+"#"+msgToSend);
 			}
+			//sinon écriture en privée
 			else{
 			streamOut.writeUTF(IfClientServerProtocol.Whispers+login+"#"+ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected)+"#"+msgToSend);
 			StyledDocument doc = ClientLauncher.listDocuments.get(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected));
@@ -250,6 +318,11 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		return res;
 	}
 	
+	/**
+	 * Changement de salon
+	 * @param BeforeSalon
+	 * @param NextSalon
+	 */
 	public void ChangeSalon(String BeforeSalon, String NextSalon){
 		try {
 			streamOut.writeUTF(IfClientServerProtocol.RemoveFromSalon+login+"#"+BeforeSalon);
@@ -262,6 +335,9 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		}
 	}
 	
+	/**
+	 * Quitter le serveur
+	 */
 	public void quitServer() throws IOException{
 
 		try {
@@ -276,6 +352,9 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		done=true;
 	}
 	
+	/**
+	 * Thread Authentification + Lecture des messages envoyés par le serveur
+	 */
 	boolean done;
 	@Override
 	public void run() {
@@ -318,6 +397,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 		}
 	}
 	
+	/**
+	 * Authentification de l'utilisateur sur le serveur
+	 * @return boolean
+	 */
 	private boolean authentification() {
 		boolean res=false;
 		String loginPwdQ;

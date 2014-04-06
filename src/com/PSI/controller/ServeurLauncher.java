@@ -1,18 +1,23 @@
 package com.PSI.controller;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import com.PSI.irc.IfClientServerProtocol;
 import com.PSI.irc.server.BroadcastThread;
 import com.PSI.irc.server.ClientConnectThread;
 import com.PSI.irc.server.User;
+import com.mroch.view.AddSalonWindow;
 import com.mroch.view.ServerIRCWindow;
 
 public class ServeurLauncher {
@@ -21,20 +26,81 @@ public class ServeurLauncher {
 	public static ArrayList<String> listSalons;
 	public static DefaultStyledDocument listModel;
 	
+	/**
+	 * Launch Server Application
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		listSalons= new ArrayList<String>();
 		listSalons.add("Salon principal");
-		listSalons.add("Salon Secondaire");
-		listSalons.add("Salon Terciaire");
 		
 		StyledDocument styledDocument = new DefaultStyledDocument();
 		DefaultStyledDocument docChat = new DefaultStyledDocument();
 		listModel = new DefaultStyledDocument();
+		
+		//création de la connexion Serveur
 		ClientConnectThread connect = new ClientConnectThread(4567,styledDocument, docChat);
 		frame = new ServerIRCWindow(styledDocument, listModel, docChat);
+		
+		//chargement du JTree
 		loadTree();
 		frame.setVisible(true);
 		
+		//Ajout d'un salon sur le serveur et les clients
+		frame.getBtnAjouter().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				final AddSalonWindow addSalonDialog = new AddSalonWindow();
+				addSalonDialog.setVisible(true);
+				addSalonDialog.getAjouterSalonButton().addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent arg0){
+						if(!addSalonDialog.getTxtSalonName().getText().isEmpty()){
+							listSalons.add(addSalonDialog.getTxtSalonName().getText());
+							BroadcastThread.sendGestionSalon(addSalonDialog.getTxtSalonName().getText(), IfClientServerProtocol.AddSalon);
+							loadTree();
+							addSalonDialog.dispose();
+						}
+					}
+				});
+				addSalonDialog.getCancelButton().addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent arg0) {
+						addSalonDialog.dispose();
+					}
+				});
+			}
+		});
+		
+		
+		//Supression d'un salon sur le serveur et sur les clients
+		frame.getBtnSupprimer().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0){
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) frame.getTree().getLastSelectedPathComponent();
+				if (node == null)
+				    //Nothing is selected.  
+				    return;
+					
+					//Récuperation de l'utilisateur si il existe
+				    String nodeInfo = (String)node.getUserObject();
+				    if(listSalons.contains(nodeInfo)){
+				    	if(BroadcastThread.getUsersBySalon(nodeInfo).size() == 0){
+				    		if(nodeInfo != "Salon principal"){
+				    	listSalons.remove(nodeInfo);
+				    	BroadcastThread.sendGestionSalon(nodeInfo, IfClientServerProtocol.removeSalon);
+				    	loadTree();
+				    	}
+				    		else JOptionPane.showMessageDialog(frame, "Impossible de supprimer le salon principal");    	
+							   
+				    	}
+				    	else JOptionPane.showMessageDialog(frame, "Veuillez attendre qu'il n'y ait plus d'utilisateurs avant de supprimer ce salon");    	
+				    }
+			    	else JOptionPane.showMessageDialog(frame, "Veuillez selectionner un salon");
+			}
+		});
+		
+		//Event au click sur une node
 		frame.getTree().addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				System.out.println("ValueChange on Tree");
@@ -43,8 +109,11 @@ public class ServeurLauncher {
 				    //Nothing is selected.  
 				    return;
 					
+					//Récuperation de l'utilisateur si il existe
 				    String nodeInfo = (String)node.getUserObject();
 				    User user = BroadcastThread.getUserByName(nodeInfo);
+				    
+				    //Affichage des informations de l'utilisateurs
 				    if(user!=null){
 				    	//listModel = new DefaultStyledDocument();
 				    	try {
@@ -72,6 +141,9 @@ public class ServeurLauncher {
 		connect.start();
 	}
 
+	/**
+	 * Création des nodes du JTree en fonction des utilisateurs dans leurs salons
+	 */
 	public static void loadTree(){
 		frame.getTree().setModel(new DefaultTreeModel(
 				new DefaultMutableTreeNode("Liste des salons") {
@@ -91,6 +163,11 @@ public class ServeurLauncher {
 		frame.getTree().repaint();
 	}
 	
+	/**
+	 * Récuperer l'affichage String "HH:MM:SS" à partir de millisecondes
+	 * @param millis
+	 * @return String
+	 */
 	public static String millisToString(long millis)
 	{
 		
