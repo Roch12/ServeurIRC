@@ -130,12 +130,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			Style styleGP, Style iconStyle, Document doc) {
         try {        
         	if(ClientLauncher.tabSelected != -1){
-        	StyledDocument writeDocumentModel = ClientLauncher.documentModel;
-        	if(ClientLauncher.tabSelected > 0) writeDocumentModel = (StyledDocument) doc;
         	
-        	writeDocumentModel.insertString(writeDocumentModel.getLength(), " ", iconStyle);
-        	writeDocumentModel.insertString(writeDocumentModel.getLength(), "  "+user+" : ", styleBI);
-        	writeDocumentModel.insertString(writeDocumentModel.getLength(), line+"\n\n", styleGP);
+        		doc.insertString(doc.getLength(), " ", iconStyle);
+        		doc.insertString(doc.getLength(), "  "+user+" : ", styleBI);
+        		doc.insertString(doc.getLength(), line+"\n\n", styleGP);
         	}
 		} catch (BadLocationException e1) {
 			// TODO Auto-generated catch block
