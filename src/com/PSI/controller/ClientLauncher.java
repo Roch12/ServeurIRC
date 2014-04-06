@@ -8,12 +8,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -96,6 +99,8 @@ public class ClientLauncher {
 	public static void launchClient( final ClientToServerThread client)
 	{
 		frame = new ClientIRCWindow(documentModel, userInput, listModel, listSalon);
+		frame.getUserName().setText(client.login);
+		frame.getNbusers().setText(client.nbUsers.toString());
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -124,8 +129,9 @@ public class ClientLauncher {
 		frame.getList().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				if(listModel.getSize() >0){
 				boolean res = true;
-				for (int i = 0; i < frame.getTabbedPane().countComponents(); i++) {
+				for (int i = 0; i < listModel.getSize(); i++) {
 					if(frame.getTabbedPane().getTitleAt(i) == listModel.get(frame.getList().getSelectedIndex()) )
 						res = false;
 				}
@@ -135,6 +141,7 @@ public class ClientLauncher {
 					System.out.println("Add Tab : / nb tab = " + listDocuments.size());
 					frame.AddPrivateUserTab(listModel.get(index), listDocuments.get(listModel.get(index)));
 					
+				}
 				}
 			}
 		});

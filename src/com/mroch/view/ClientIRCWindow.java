@@ -2,64 +2,56 @@ package com.mroch.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.ListModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.TabbedPaneUI;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.DefaultCaret;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.TabExpander;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.ImageObserver;
-import java.text.AttributedCharacterIterator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
 
 
 public class ClientIRCWindow extends JFrame {
 	private JPanel contentPane;
-	private JTextField textField;
-	private JList<String> list;
-	private JPanel panel_1;
+	private JTextField sendTextField;
+	private JList<String> userList;
+	private JPanel usersPanel;
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
 	private HashMap<Integer,Component> tabs;
-	private JTextArea textAreaSalon;
-	private JSplitPane splitPane_1;
+	private JTextPane textAreaSalon;
+	private JSplitPane SalonSplitPane;
 	private JComboBox comboBoxSalon;
 	private JButton btnChanger;
+	private JSplitPane usersInfoSplitPane;
+	private JPanel userInfoPanel;
+	private JPanel nbUserPanel;
+	private JLabel userImg;
+	private JLabel userName;
+	private JLabel lblNbUtilisateurs;
+	private JLabel lblNbusers;
 
 	/**
 	 * Create the frame.
@@ -93,7 +85,7 @@ public class ClientIRCWindow extends JFrame {
 		
 
 		
-		textAreaSalon = new JTextArea(documentModel);
+		textAreaSalon = new JTextPane((StyledDocument) documentModel);
 		JScrollPane scroll = new JScrollPane();
 		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -108,43 +100,71 @@ public class ClientIRCWindow extends JFrame {
 		
 		
 		
-		textField = new JTextField(userInput,null,0);
+		sendTextField = new JTextField(userInput,null,0);
 
-		panel.add(textField, BorderLayout.SOUTH);
-		textField.setColumns(10);
+		panel.add(sendTextField, BorderLayout.SOUTH);
+		sendTextField.setColumns(10);
 		
-		panel_1 = new JPanel();
-		panel_1.setSize(new Dimension(200, 0));
-		splitPane.setLeftComponent(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		usersPanel = new JPanel();
+		usersPanel.setSize(new Dimension(200, 0));
+		splitPane.setLeftComponent(usersPanel);
+		usersPanel.setLayout(new BorderLayout(0, 0));
 		
 		
-		list = new JList<String>(listModel);
+		userList = new JList<String>(listModel);
+		//userList.setBackground(UIManager.getColor("InternalFrame.activeTitleGradient"));
 		
 		
 	
-		panel_1.add(list);
+		usersPanel.add(userList);
 		
-				list.setPreferredSize(new Dimension(200, 0));
+				userList.setPreferredSize(new Dimension(200, 0));
 				
-				splitPane_1 = new JSplitPane();
-				splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-				panel_1.add(splitPane_1, BorderLayout.SOUTH);
+				SalonSplitPane = new JSplitPane();
+				SalonSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+				usersPanel.add(SalonSplitPane, BorderLayout.SOUTH);
 				
 				comboBoxSalon = new JComboBox(listSalon.toArray());
-				splitPane_1.setLeftComponent(comboBoxSalon);
+				SalonSplitPane.setLeftComponent(comboBoxSalon);
 				
 				btnChanger = new JButton("Changer de salon");
 
-				splitPane_1.setRightComponent(btnChanger);
+				SalonSplitPane.setRightComponent(btnChanger);
+				
+				usersInfoSplitPane = new JSplitPane();
+				usersInfoSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+				usersPanel.add(usersInfoSplitPane, BorderLayout.NORTH);
+				
+				userInfoPanel = new JPanel();
+				userInfoPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+				usersInfoSplitPane.setLeftComponent(userInfoPanel);
+				
+				
+				userImg = new JLabel(new ImageIcon(this.getClass().getResource("/user.png")));
+				userImg.setHorizontalTextPosition(SwingConstants.LEFT);
+				userImg.setPreferredSize(new Dimension(70, 70));
+				userImg.setHorizontalAlignment(SwingConstants.LEFT);
+				userInfoPanel.add(userImg);
+				
+				userName = new JLabel("");
+				userInfoPanel.add(userName);
+				
+				nbUserPanel = new JPanel();
+				usersInfoSplitPane.setRightComponent(nbUserPanel);
+				
+				lblNbUtilisateurs = new JLabel("Nb utilisateurs :");
+				nbUserPanel.add(lblNbUtilisateurs);
+				
+				lblNbusers = new JLabel("0");
+				nbUserPanel.add(lblNbusers);
 				
 	}
 
 	public JTextField getTextField() {
-		return textField;
+		return sendTextField;
 	}
 	public JList getList() {
-		return list;
+		return userList;
 	}
 	
 	public HashMap<Integer,Component> getTabsList(){
@@ -153,24 +173,24 @@ public class ClientIRCWindow extends JFrame {
 	
 	public void AddPrivateUserTab(String username,StyledDocument styledDocument)
 	{
-		JTextArea textArea = new JTextArea(styledDocument);
+		JTextPane textPane = new JTextPane(styledDocument);
 		JScrollPane scroll = new JScrollPane();
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scroll.setViewportView(textArea);
-		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		scroll.setViewportView(textPane);
+		DefaultCaret caret = (DefaultCaret)textPane.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		Component c = tabbedPane.add(username,scroll);
 		
 		tabs.put(tabbedPane.getTabCount(),c);
 		panel.add(tabbedPane);
-		textArea.setEditable(false);
-		textArea.setBackground(Color.WHITE);
+		textPane.setEditable(false);
+		textPane.setBackground(Color.WHITE);
 	}
 	public JTabbedPane getTabbedPane() {
 		return tabbedPane;
 	}
-	public JTextArea getTextAreaSalon() {
+	public JTextPane getTextAreaSalon() {
 		return textAreaSalon;
 	}
 	public JButton getBtnChanger() {
@@ -178,6 +198,15 @@ public class ClientIRCWindow extends JFrame {
 	}
 	public JComboBox getComboBoxSalon() {
 		return comboBoxSalon;
+	}
+	public JLabel getUserImg() {
+		return userImg;
+	}
+	public JLabel getUserName() {
+		return userName;
+	}
+	public JLabel getNbusers() {
+		return lblNbusers;
 	}
 }
 

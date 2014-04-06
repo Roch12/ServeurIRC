@@ -32,7 +32,7 @@ public class ServeurLauncher {
 		listModel = new DefaultStyledDocument();
 		ClientConnectThread connect = new ClientConnectThread(4567,styledDocument, docChat);
 		frame = new ServerIRCWindow(styledDocument, listModel, docChat);
-		LoadTree();
+		loadTree();
 		frame.setVisible(true);
 		
 		frame.getTree().addTreeSelectionListener(new TreeSelectionListener() {
@@ -44,7 +44,7 @@ public class ServeurLauncher {
 				    return;
 					
 				    String nodeInfo = (String)node.getUserObject();
-				    User user = BroadcastThread.GetUserByName(nodeInfo);
+				    User user = BroadcastThread.getUserByName(nodeInfo);
 				    if(user!=null){
 				    	//listModel = new DefaultStyledDocument();
 				    	try {
@@ -72,14 +72,14 @@ public class ServeurLauncher {
 		connect.start();
 	}
 
-	public static void LoadTree(){
+	public static void loadTree(){
 		frame.getTree().setModel(new DefaultTreeModel(
 				new DefaultMutableTreeNode("Liste des salons") {
 					{
 						DefaultMutableTreeNode node_1;
 						for (String salon : listSalons) {
 							node_1 = new DefaultMutableTreeNode(salon);
-							for (User user : BroadcastThread.GetUsersBySalon(salon)) {
+							for (User user : BroadcastThread.getUsersBySalon(salon)) {
 								node_1.add(new DefaultMutableTreeNode(user.getLogin()));
 							}
 						add(node_1);

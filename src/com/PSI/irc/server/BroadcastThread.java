@@ -30,7 +30,7 @@ public class BroadcastThread extends Thread {
 			clientTreadsMap.put(user, serverToClientThread);
 			SalonMap.put(user,"Salon principal");
 			sendMessage(user,"Salon principal", "", IfClientServerProtocol.ADD);
-			ServeurLauncher.LoadTree();
+			ServeurLauncher.loadTree();
 		}
 		return res;
 	}
@@ -70,7 +70,7 @@ public class BroadcastThread extends Thread {
 		}
 	}
 	
-	public static ArrayList<User> GetUsersBySalon(String salon){
+	public static ArrayList<User> getUsersBySalon(String salon){
 		ArrayList<User> listUsers = new ArrayList<User>();
 		for (User user : SalonMap.keySet()) {
 			if(SalonMap.get(user).equals(salon))
@@ -82,7 +82,7 @@ public class BroadcastThread extends Thread {
 		return listUsers;
 	}
 	
-	public static User GetUserByName(String username){
+	public static User getUserByName(String username){
 		for (User user : clientTreadsMap.keySet()) {
 			if(user.getLogin().equals(username)) return user;
 		}

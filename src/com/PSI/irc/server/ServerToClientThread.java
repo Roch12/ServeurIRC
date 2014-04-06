@@ -15,6 +15,7 @@ import javax.swing.text.StyledDocument;
 
 import com.PSI.controller.ServeurLauncher;
 import com.PSI.irc.IfClientServerProtocol;
+import com.PSI.irc.client.ClientToServerThread;
 
 public class ServerToClientThread extends Thread{
 	
@@ -100,7 +101,7 @@ public class ServerToClientThread extends Thread{
 								BroadcastThread.sendMessage(user,salon,"",IfClientServerProtocol.DEL);
 								BroadcastThread.removeClient(user);
 								System.out.println("Delete " + user.getLogin());
-								ServeurLauncher.LoadTree();
+								ServeurLauncher.loadTree();
 							}
 							else if(line.startsWith(IfClientServerProtocol.Whispers)){
 								BroadcastThread.sendPrivateMessage(user, salon, msg);
@@ -108,8 +109,8 @@ public class ServerToClientThread extends Thread{
 							else if(line.startsWith(IfClientServerProtocol.Salon)){
 								
 								BroadcastThread.sendMessage(user,salon,msg,IfClientServerProtocol.Message);
-								Style styleGP = ((StyledDocument)doc).getStyle(GRAY_PLAIN);
-								Style styleBI = ((StyledDocument)doc).getStyle(BOLD_ITALIC);
+								Style styleGP = ((StyledDocument)ClientToServerThread.defaultDocumentModel()).getStyle(GRAY_PLAIN);
+								Style styleBI = ((StyledDocument)ClientToServerThread.defaultDocumentModel()).getStyle(BOLD_ITALIC);
 								doc.insertString(doc.getLength(), BroadcastThread.clientTreadsMap.get(user).socket.getInetAddress().getHostAddress()+ " | "+user.getLogin() +" : ", styleBI);
 								doc.insertString(doc.getLength(), msg+"\n", styleGP);
 							}
@@ -122,7 +123,7 @@ public class ServerToClientThread extends Thread{
 								BroadcastThread.SalonMap.put(user, userMsg[2]);
 								BroadcastThread.loadUserByMessage(userMsg[2]);
 								BroadcastThread.sendMessage(user,userMsg[2],"",IfClientServerProtocol.ADD);
-								ServeurLauncher.LoadTree();
+								ServeurLauncher.loadTree();
 							}
 						}
 					}

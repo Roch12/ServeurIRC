@@ -13,8 +13,12 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -28,7 +32,9 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
     public static final String BOLD_ITALIC = "BoldItalic";
     public static final String GRAY_PLAIN = "Gray";
+    public static final String LABEL_STYLE = "labelstyle";
     public static Boolean launcher = false;
+    public static Integer nbUsers = 1;
         
 	public static DefaultStyledDocument defaultDocumentModel() {
 		DefaultStyledDocument res=new DefaultStyledDocument();
@@ -39,13 +45,22 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	    Style styleBI = res.getStyle(BOLD_ITALIC);
 	    StyleConstants.setBold(styleBI, true);
 	    StyleConstants.setItalic(styleBI, true);
-	    StyleConstants.setForeground(styleBI, Color.black);	    
+	    StyleConstants.setForeground(styleBI, Color.black);	 
+	    StyleConstants.setFontSize(styleBI, 13);
+	    
 
 	    res.addStyle(GRAY_PLAIN, styleDefault);
         Style styleGP = res.getStyle(GRAY_PLAIN);
         StyleConstants.setBold(styleGP, false);
         StyleConstants.setItalic(styleGP, false);
-        StyleConstants.setForeground(styleGP, Color.lightGray);
+        StyleConstants.setForeground(styleGP, Color.DARK_GRAY);
+        StyleConstants.setFontSize(styleGP, 11);
+        
+        res.addStyle(LABEL_STYLE, styleDefault);
+		Style labelStyle = res.getStyle(LABEL_STYLE);
+	    Icon icon = new ImageIcon(ClientToServerThread.class.getResource("/user_min.png"));
+	    JLabel label = new JLabel(icon);
+	    StyleConstants.setComponent(labelStyle, label);
 
 		return res;
 	}
@@ -54,9 +69,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	private DataOutputStream streamOut = null;
 	private DataInputStream streamIn = null;
 	private BufferedReader console = null;
-	String login,pwd;
+	public String login,pwd;
 	DefaultListModel<String> clientListModel;
 	StyledDocument documentModel;
+	
 	
 	public ClientToServerThread(StyledDocument documentModel, DefaultListModel<String> clientListModel, Socket socket, String login, String pwd) {
 		super();
@@ -102,19 +118,24 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			streamOut.close();
 	}
 	
-	public void receiveMessage(String user, String line){
-		Style styleBI = ((StyledDocument)documentModel).getStyle(BOLD_ITALIC);
-        Style styleGP = ((StyledDocument)documentModel).getStyle(GRAY_PLAIN);
-        receiveMessage(user, line, styleBI, styleGP);
+	public void receiveMessage(String user, String line, Document doc){
+
+		Style styleBI = ((StyledDocument)this.defaultDocumentModel()).getStyle(BOLD_ITALIC);
+        Style styleGP = ((StyledDocument)this.defaultDocumentModel()).getStyle(GRAY_PLAIN);
+        Style labelStyle = ((StyledDocument)this.defaultDocumentModel()).getStyle(LABEL_STYLE);
+        receiveMessage(user, line, styleBI, styleGP, labelStyle,doc);
 	}
 	
 	public void receiveMessage(String user, String line, Style styleBI,
-			Style styleGP) {
+			Style styleGP, Style iconStyle, Document doc) {
         try {        
         	if(ClientLauncher.tabSelected != -1){
-        	documentModel = ClientLauncher.documentModel;
-			documentModel.insertString(documentModel.getLength(), user+" : ", styleBI);
-			documentModel.insertString(documentModel.getLength(), line+"\n", styleGP);
+        	StyledDocument writeDocumentModel = ClientLauncher.documentModel;
+        	if(ClientLauncher.tabSelected > 0) writeDocumentModel = (StyledDocument) doc;
+        	
+        	writeDocumentModel.insertString(writeDocumentModel.getLength(), " ", iconStyle);
+        	writeDocumentModel.insertString(writeDocumentModel.getLength(), "  "+user+" : ", styleBI);
+        	writeDocumentModel.insertString(writeDocumentModel.getLength(), line+"\n\n", styleGP);
         	}
 		} catch (BadLocationException e1) {
 			// TODO Auto-generated catch block
@@ -132,6 +153,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			String newLine =line.substring(IfClientServerProtocol.Whispers.length());
 			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
 			StyledDocument document = null;
+			
 			if(ClientLauncher.listDocuments.get(userMsg[0]) != null)
 				document = ClientLauncher.listDocuments.get(userMsg[0]);
 			else{
@@ -140,6 +162,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 				ClientLauncher.frame.AddPrivateUserTab(userMsg[0], ClientLauncher.listDocuments.get(userMsg[0]));
 			}
 			
+			
 			for (int i = 0; i < ClientLauncher.frame.getTabbedPane().countComponents(); i++) {
 				if(ClientLauncher.frame.getTabbedPane().getTitleAt(i).equals(userMsg[0]) && ClientLauncher.tabSelected != i)
 				{
@@ -147,16 +170,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 					ClientLauncher.frame.getTabbedPane().setBackgroundAt(i, new Color(255,160,0));
 				}
 			}
-			
-			Style styleBI = ((StyledDocument)document).getStyle(BOLD_ITALIC);
-	        Style styleGP = ((StyledDocument)document).getStyle(GRAY_PLAIN);
-			try {
-				System.out.println(userMsg.length);
-				document.insertString(document.getLength(), userMsg[0]+" : ", styleBI);
-				document.insertString(document.getLength(), userMsg[1]+"\n", styleGP);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}	
+			receiveMessage(userMsg[0], userMsg[1], document);
 		}
 		else if(line.startsWith(IfClientServerProtocol.ADD)){
 			
@@ -164,8 +178,10 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			if(userPlace.length > 2){
 			if(!clientListModel.contains(userPlace[2]) && ClientLauncher.SalonName.startsWith(userPlace[3]) && !login.equals(userPlace[2]) ){
 				playSound("lawardine");
+				nbUsers++;
+				ClientLauncher.frame.getNbusers().setText(nbUsers.toString());
 				clientListModel.addElement(userPlace[2]);
-				receiveMessage(userPlace[2], " entre dans le salon...");
+				receiveMessage(userPlace[2], " entre dans le salon...",documentModel);
 			}
 			}
 		}
@@ -177,6 +193,8 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			System.out.println("del user : " + delUsers[0]);
 			if(clientListModel.contains(user)){
 				ClientLauncher.frame.getList().setSelectedValue(null, false);
+				nbUsers--;
+				ClientLauncher.frame.getNbusers().setText(nbUsers.toString());
 				clientListModel.removeElement(user);
 				ClientLauncher.listDocuments.remove(user);
 				for (int i = 0; i < ClientLauncher.frame.getTabbedPane().getTabCount(); i++) {
@@ -191,7 +209,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 						
 				}
 				
-				receiveMessage(user, " quitte le salon !");
+				receiveMessage(user, " quitte le salon !", documentModel);
 			}
 		}
 		else{
@@ -200,7 +218,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			String[] userMsg=newLine.split(IfClientServerProtocol.SEPARATOR);
 			String user=userMsg[0];
 			if(userMsg[1].startsWith(ClientLauncher.SalonName))
-				receiveMessage(user, userMsg[2]);
+				receiveMessage(user, userMsg[2],documentModel);
 		}
 	}
 	
@@ -225,14 +243,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			else{
 			streamOut.writeUTF(IfClientServerProtocol.Whispers+login+"#"+ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected)+"#"+msgToSend);
 			StyledDocument doc = ClientLauncher.listDocuments.get(ClientLauncher.frame.getTabbedPane().getTitleAt(ClientLauncher.tabSelected));
-			Style styleBI = ((StyledDocument)doc).getStyle(BOLD_ITALIC);
-	        Style styleGP = ((StyledDocument)doc).getStyle(GRAY_PLAIN);
-			try {
-				doc.insertString(doc.getLength(), login+" : ", styleBI);
-				doc.insertString(doc.getLength(), msgToSend+"\n", styleGP);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}	
+			receiveMessage(login, msgToSend, doc);
 			//receiveMessage(login, msgToSend);
 			}msgToSend=null;
 		    streamOut.flush();
@@ -246,6 +257,8 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			streamOut.writeUTF(IfClientServerProtocol.RemoveFromSalon+login+"#"+BeforeSalon);
 			Thread.sleep(100);
 			streamOut.writeUTF(IfClientServerProtocol.AddToSalon+login+"#"+NextSalon);
+			nbUsers = 1;
+			ClientLauncher.frame.getNbusers().setText(nbUsers.toString());
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -257,7 +270,6 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			playSound("adishatz");
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		streamOut.writeUTF(IfClientServerProtocol.DEL+login+"#"+ClientLauncher.SalonName);
@@ -304,7 +316,6 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 			close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -328,11 +339,9 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 				res=true;
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			res=false;
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return res;		
