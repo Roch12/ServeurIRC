@@ -31,7 +31,7 @@ public class BroadcastThread extends Thread {
 	 * Ajouter un client au serveur
 	 * @param user
 	 * @param serverToClientThread
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean addClient(User user, ServerToClientThread serverToClientThread){
 		boolean res=true;
