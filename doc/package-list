@@ -1,1 +1,5 @@
+com.PSI.controller
+com.PSI.irc
+com.PSI.irc.client
 com.PSI.irc.server
+com.mroch.view

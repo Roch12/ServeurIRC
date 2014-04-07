@@ -30,9 +30,9 @@ public class ServerToClientThread extends Thread{
 	
 	/**
 	 * Constructeur
-	 * @param user
-	 * @param socket
-	 * @param doc
+	 * @param user User
+	 * @param socket Socket
+	 * @param doc DefaultStyledDocument
 	 */
 	public ServerToClientThread(User user, Socket socket, DefaultStyledDocument doc) {
 		super();
@@ -45,7 +45,7 @@ public class ServerToClientThread extends Thread{
 	
 	/**
 	 * Poster un message
-	 * @param msg
+	 * @param msg String
 	 */
 	public synchronized void post(String msg){
 		msgToPost.add(msg);

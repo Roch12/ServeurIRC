@@ -23,7 +23,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 	
 	/**
 	 * Affichage des informations de connexion
-	 * @param msg
+	 * @param msg String
 	 */
 	private void printMsg(String msg){
 		try {
@@ -39,9 +39,9 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 	
 	/**
 	 * Création du thread de connexion serveur
-	 * @param port
-	 * @param model
-	 * @param modelChat
+	 * @param port int
+	 * @param model StyledDocument
+	 * @param modelChat DefaultStyledDocument
 	 */
 	public ClientConnectThread(int port, StyledDocument model, DefaultStyledDocument modelChat) {
 		try {
@@ -79,7 +79,7 @@ public class ClientConnectThread extends Thread implements IfClientServerProtoco
 
 	/**
 	 * Accepter un client sur le serveur
-	 * @param socket
+	 * @param socket Socket
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */

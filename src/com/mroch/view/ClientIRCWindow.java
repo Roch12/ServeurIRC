@@ -178,8 +178,8 @@ public class ClientIRCWindow extends JFrame {
 	
 	/**
 	 * Ajouter une tab en cas de discussion privée
-	 * @param username
-	 * @param styledDocument
+	 * @param username String
+	 * @param styledDocument StyledDocument
 	 */
 	public void AddPrivateUserTab(String username,StyledDocument styledDocument)
 	{
@@ -256,7 +256,7 @@ public class ClientIRCWindow extends JFrame {
 	
 	/**
 	 * Mise a jour de la JcomboBox des salons
-	 * @param listSalon
+	 * @param listSalon ArrayList<String>
 	 */
 	public void setComboBoxSalon(ArrayList<String> listSalon){
 		comboBoxSalon.setModel(new DefaultComboBoxModel(listSalon.toArray()));

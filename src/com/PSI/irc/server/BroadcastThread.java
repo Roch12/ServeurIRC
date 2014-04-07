@@ -29,8 +29,8 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Ajouter un client au serveur
-	 * @param user
-	 * @param serverToClientThread
+	 * @param user User
+	 * @param serverToClientThread ServerToClientThread
 	 * @return boolean
 	 */
 	public static boolean addClient(User user, ServerToClientThread serverToClientThread){
@@ -49,10 +49,10 @@ public class BroadcastThread extends Thread {
 
 	/**
 	 * Envoyer un message
-	 * @param sender
-	 * @param salon
-	 * @param msg
-	 * @param action
+	 * @param sender User
+	 * @param salon String
+	 * @param msg String
+	 * @param action String
 	 */
 	public static void sendMessage(User sender,String salon, String msg, String action){
 		Collection<ServerToClientThread> clientTreads=clientTreadsMap.values();
@@ -73,9 +73,9 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Envoyer un message privé
-	 * @param sender
-	 * @param receveir
-	 * @param msg
+	 * @param sender User
+	 * @param receveir String
+	 * @param msg String
 	 */
 	public static void sendPrivateMessage(User sender, String receveir, String msg){
 		for (User user : clientTreadsMap.keySet()) {
@@ -90,7 +90,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Envoyé tous les utilisateurs connectés à la première authentification
-	 * @param salon
+	 * @param salon String
 	 */
 	public static void loadUserByMessage(String salon){
 		for (User user : clientTreadsMap.keySet()) {
@@ -103,8 +103,8 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Envoyer un message d'ajout/suppresion de salon
-	 * @param salonName
-	 * @param msgType
+	 * @param salonName String
+	 * @param msgType String
 	 */
 	public static void sendGestionSalon(String salonName,String msgType){
 		Collection<ServerToClientThread> clientTreads=clientTreadsMap.values();
@@ -117,7 +117,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Envoyé au client la liste des salons existant lors de la première connection
-	 * @param client
+	 * @param client ServerToClientThread
 	 */
 	public static void loadAllSalons(ServerToClientThread client){
 		if(ServeurLauncher.listSalons.size() > 1){
@@ -133,7 +133,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Récupérer la liste des utilisateurs d'un salon
-	 * @param salon
+	 * @param salon String
 	 * @return ArrayList<User>
 	 */
 	public static ArrayList<User> getUsersBySalon(String salon){
@@ -150,7 +150,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Récuperer un utilisateur en fonction de son nom
-	 * @param username
+	 * @param username String
 	 * @return User
 	 */
 	public static User getUserByName(String username){
@@ -162,7 +162,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Supprimer un utilisateur du serveur
-	 * @param user
+	 * @param user User
 	 */
 	public static void removeClient(User user){
 		clientTreadsMap.remove(user);
@@ -171,7 +171,7 @@ public class BroadcastThread extends Thread {
 	
 	/**
 	 * Accepter un utilisateur sur le serveur
-	 * @param user
+	 * @param user User
 	 * @return boolean
 	 */ 
 	public static boolean accept(User user){

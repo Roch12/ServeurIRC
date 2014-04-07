@@ -28,7 +28,7 @@ public class ServeurLauncher {
 	
 	/**
 	 * Launch Server Application
-	 * @param args
+	 * @param args String[]
 	 */
 	public static void main(String[] args) {
 		listSalons= new ArrayList<String>();
@@ -165,7 +165,7 @@ public class ServeurLauncher {
 	
 	/**
 	 * Récuperer l'affichage String "HH:MM:SS" à partir de millisecondes
-	 * @param millis
+	 * @param millis long
 	 * @return String
 	 */
 	public static String millisToString(long millis)

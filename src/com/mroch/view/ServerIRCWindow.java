@@ -153,9 +153,19 @@ public class ServerIRCWindow extends JFrame {
 	public JTree getTree() {
 		return tree;
 	}
+	
+	/**
+	 * Récuperer le bouton permettant d'ajouter un salon
+	 * @return JButton
+	 */
 	public JButton getBtnAjouter() {
 		return btnAjouter;
 	}
+	
+	/**
+	 * Récuperer le bouton permettant de supprimer un salon
+	 * @return JButton
+	 */
 	public JButton getBtnSupprimer() {
 		return btnSupprimer;
 	}

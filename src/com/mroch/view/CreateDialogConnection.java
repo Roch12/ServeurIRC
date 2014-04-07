@@ -110,7 +110,7 @@ public class CreateDialogConnection extends JDialog {
 	
 	/**
 	 * Récuperer le JTextField de l'adresse IP
-	 * @return
+	 * @return JTextField
 	 */
 	public JTextField getTxtLocalhost() {
 		return txtLocalhost;

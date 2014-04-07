@@ -26,18 +26,6 @@ public class AddSalonWindow extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AddSalonWindow frame = new AddSalonWindow();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 	
 	public AddSalonWindow() {
 		setTitle("Ajouter Salon");
@@ -74,12 +62,26 @@ public class AddSalonWindow extends JFrame {
 		}
 	}
 
+	/**
+	 * Récuperer le bouton d'ajout de salon
+	 * @return JButton
+	 */
 	public JButton getAjouterSalonButton() {
 		return AjouterSalonButton;
 	}
+	
+	/**
+	 * Récuperer le bouton de cancel
+	 * @return JButton
+	 */
 	public JButton getCancelButton() {
 		return cancelButton;
 	}
+	
+	/**
+	 * Récupérer le TextField Nom du salon
+	 * @return JTextField
+	 */
 	public JTextField getTxtSalonName() {
 		return txtSalonName;
 	}

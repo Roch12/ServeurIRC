@@ -52,7 +52,7 @@ public class ClientLauncher {
 	
 	/**
 	 * Launch the Client Application
-	 * @param args
+	 * @param args String[]
 	 */
 	public static void main(String[] args) {
 				final CreateDialogConnection dialogConnection = new CreateDialogConnection();
@@ -104,10 +104,10 @@ public class ClientLauncher {
 		
 	/**
 	 * Launch Socket and create ClientToServerThread
-	 * @param adresse
-	 * @param port
-	 * @param username
-	 * @param mdp
+	 * @param adresse String
+	 * @param port int
+	 * @param username String
+	 * @param mdp String
 	 * @throws IOException
 	 */
 	public static void launchSocket(String adresse, int port,String username, String mdp) throws IOException
@@ -122,7 +122,7 @@ public class ClientLauncher {
 	
 	/**
 	 * Création de l'interface client
-	 * @param client
+	 * @param client ClientToServerThread
 	 */
 	public static void launchClient( final ClientToServerThread client)
 	{

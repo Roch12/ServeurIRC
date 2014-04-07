@@ -79,11 +79,11 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	/**
 	 * Constructeur
-	 * @param documentModel
-	 * @param clientListModel
-	 * @param socket
-	 * @param login
-	 * @param pwd
+	 * @param documentModel StyledDocument
+	 * @param clientListModel DefaultListModel<String>
+	 * @param socket Socket
+	 * @param login String
+	 * @param pwd String
 	 */
 	public ClientToServerThread(StyledDocument documentModel, DefaultListModel<String> clientListModel, Socket socket, String login, String pwd) {
 		super();
@@ -96,7 +96,7 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	/**
 	 * Jouer un .wav
-	 * @param url
+	 * @param url String
 	 */
 	public static synchronized void playSound(final String url) {
 		  Thread t = new Thread(new Runnable() {
@@ -144,9 +144,9 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	/**
 	 * Affichage du message en y affectant les styles
-	 * @param user
-	 * @param line
-	 * @param doc
+	 * @param user String
+	 * @param line String
+	 * @param doc Document
 	 */
 	public void receiveMessage(String user, String line, Document doc){
 
@@ -158,12 +158,12 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	/**
 	 * Affichage du message sur le StyledDocument
-	 * @param user
-	 * @param line
-	 * @param styleBI
-	 * @param styleGP
-	 * @param iconStyle
-	 * @param doc
+	 * @param user String
+	 * @param line String
+	 * @param styleBI Style
+	 * @param styleGP Style
+	 * @param iconStyle Style
+	 * @param doc Document
 	 */
 	public void receiveMessage(String user, String line, Style styleBI,
 			Style styleGP, Style iconStyle, Document doc) {
@@ -320,8 +320,8 @@ public class ClientToServerThread extends Thread implements IfSenderModel{
 	
 	/**
 	 * Changement de salon
-	 * @param BeforeSalon
-	 * @param NextSalon
+	 * @param BeforeSalon String
+	 * @param NextSalon String
 	 */
 	public void ChangeSalon(String BeforeSalon, String NextSalon){
 		try {
