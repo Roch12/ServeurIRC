@@ -78,6 +78,11 @@ public class CreateDialogConnection extends JDialog {
 		txtPassword.setColumns(10);
 		{
 			JPanel buttonPane = new JPanel();
+			buttonPane.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+				}
+			});
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
@@ -136,10 +141,10 @@ public class CreateDialogConnection extends JDialog {
 	}
 	
 	/**
-	 * Récupérer le Button de cancel
+	 * Récupérer le bouton de cancel
 	 * @return JButton
 	 */
-	public JButton getCancelButton(){
+	public JButton getCancelButton() {
 		return cancelButton;
 	}
 }
